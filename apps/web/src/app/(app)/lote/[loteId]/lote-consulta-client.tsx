@@ -158,7 +158,7 @@ export function LoteConsultaClient({ loteId }: Props) {
       />
 
       {!todasVerificadas && !pausado && consultaAtual && (
-        <Card className="border-blue-200">
+        <Card className="border-civilium-primary/30">
           <CardContent className="space-y-4 pt-6">
             <div>
               <p className="font-medium text-slate-900">
@@ -178,7 +178,7 @@ export function LoteConsultaClient({ loteId }: Props) {
             )}
 
             {loteEmAndamento && aguardandoResultado && (
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-civilium-primary-dark">
                 Verificação em andamento na aba da Receita. Resolva o CAPTCHA e
                 aguarde — ao concluir, a próxima pessoa carregará automaticamente.
               </p>

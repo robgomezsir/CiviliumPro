@@ -1,23 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CiviliumLogo } from "@/components/ui/civilium-logo";
 
 export const metadata: Metadata = {
-  title: "Privacidade — Civilium Bridge",
+  title: "Privacidade — civilium bridge",
   description:
-    "Política de privacidade da extensão Chrome Civilium Bridge para consultas na Receita Federal.",
+    "Política de privacidade da extensão Chrome civilium bridge para consultas na Receita Federal.",
 };
 
 export default function PrivacidadeExtensaoPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 text-slate-800">
-      <p className="mb-6">
-        <Link href="/" className="text-blue-700 hover:underline">
-          ← Voltar ao Civilium
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <CiviliumLogo height={30} />
+        <Link
+          href="/painel"
+          className="text-civilium-primary hover:text-civilium-primary-dark hover:underline"
+        >
+          ← Voltar ao painel
         </Link>
-      </p>
+      </div>
 
       <h1 className="text-3xl font-bold text-slate-900">
-        Política de privacidade — Civilium Bridge
+        Política de privacidade — civilium bridge
       </h1>
       <p className="mt-2 text-slate-600">Última atualização: junho de 2026</p>
 

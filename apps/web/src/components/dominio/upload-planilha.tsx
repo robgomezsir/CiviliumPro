@@ -312,7 +312,7 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
           ref={tabelaRef}
           tabIndex={0}
           onPasteCapture={handlePaste}
-          className="overflow-x-auto rounded-lg border border-slate-200 outline-none focus-within:ring-2 focus-within:ring-blue-200 focus:ring-2 focus:ring-blue-200"
+          className="overflow-x-auto rounded-xl border border-civilium-border outline-none focus-within:ring-2 focus-within:ring-civilium-primary/30 focus:ring-2 focus:ring-civilium-primary/30"
         >
           <table className="min-w-full text-sm">
             <thead className="bg-slate-50 text-left text-slate-600">

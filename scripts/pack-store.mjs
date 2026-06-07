@@ -58,6 +58,11 @@ function copiarParaStaging(pastaDestino) {
     path.join(pastaDestino, "icons"),
     { recursive: true },
   );
+
+  const logo = path.join(extensionDir, "civilium-logo.png");
+  if (fs.existsSync(logo)) {
+    fs.copyFileSync(logo, path.join(pastaDestino, "civilium-logo.png"));
+  }
 }
 
 function criarZip(origem, destinoZip) {

@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Civilium Bridge",
-  "short_name": "Civilium",
-  "version": "3.0.0",
-  "description": "Conecta o Civilium ao portal da Receita Federal para consultas cadastrais com resolução manual de CAPTCHA.",
+  "name": "civilium bridge",
+  "short_name": "civilium",
+  "version": "3.0.1",
+  "description": "Conecta o civilium ao portal da Receita Federal para consultas cadastrais com resolução manual de CAPTCHA.",
   "homepage_url": "https://civiliumpro.vercel.app",
   "permissions": ["tabs", "storage"],
   "host_permissions": [
@@ -18,7 +18,7 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "Civilium Bridge — Configuração",
+    "default_title": "civilium bridge — Configuração",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png"

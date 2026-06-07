@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Civilium Bridge — Configuração</title>
+  <title>civilium bridge — Configuração</title>
   <link rel="icon" type="image/png" href="icons/icon32.png" />
   <style>
     :root {
-      --ink: #0f172a;
-      --muted: #475569;
-      --accent: #1d4ed8;
-      --accent-hover: #1e40af;
-      --border: #e2e8f0;
-      --bg: #f8fafc;
+      --ink: #142033;
+      --muted: #5a6f88;
+      --accent: #1a9fe8;
+      --accent-hover: #0d7fc2;
+      --border: #dce6f2;
+      --bg: #f3f6fb;
       --card: #ffffff;
-      --ok: #166534;
-      --ok-bg: #dcfce7;
+      --ok: #6fad2a;
+      --ok-bg: #eaf6d8;
     }
 
     * { box-sizing: border-box; }
@@ -41,11 +41,10 @@
       margin-bottom: 28px;
     }
 
-    .brand img {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      box-shadow: 0 1px 3px rgb(15 23 42 / 12%);
+    .brand img.logo {
+      height: 36px;
+      width: auto;
+      max-width: 220px;
     }
 
     h1 {
@@ -158,17 +157,16 @@
 <body>
   <div class="wrap">
     <div class="brand">
-      <img src="icons/icon48.png" alt="Civilium Bridge" />
+      <img class="logo" src="civilium-logo.png" alt="civilium" />
       <div>
-        <h1>Civilium Bridge</h1>
-        <p class="subtitle">Configuração da conexão com o Civilium</p>
+        <p class="subtitle">bridge — configuração da conexão</p>
       </div>
     </div>
 
     <div class="card">
       <form id="form">
-        <label for="apiBase">URL do Civilium</label>
-        <p class="hint">Endereço do app web onde você inicia as consultas.</p>
+        <label for="apiBase">URL do civilium</label>
+        <p class="hint">Endereço do app web onde você inicia as pesquisas.</p>
         <input id="apiBase" type="url" required placeholder="https://civiliumpro.vercel.app" />
 
         <label for="webhookSecret">Chave de integração</label>

@@ -21,6 +21,7 @@ const ARQUIVOS_BASE = [
 ];
 
 const PASTA_ICONES = "icons";
+const ARQUIVOS_MARCA = ["civilium-logo.png"];
 
 function lerVersao() {
   const manifest = JSON.parse(
@@ -93,6 +94,13 @@ function copiarParaStaging(pastaDestino, versao, config) {
   );
 
   copiarIcones(pastaDestino);
+
+  for (const arquivo of ARQUIVOS_MARCA) {
+    const origem = path.join(extensionDir, arquivo);
+    if (fs.existsSync(origem)) {
+      fs.copyFileSync(origem, path.join(pastaDestino, arquivo));
+    }
+  }
 
   if (fs.existsSync(guiaMd)) {
     copiarGuia(guiaMd, path.join(pastaDestino, "GUIA-INSTALACAO.md"), versao);
