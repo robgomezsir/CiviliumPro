@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { atualizarLote } from "@/actions/consulta/atualizar-lote.action";
 import { descartarLote } from "@/actions/consulta/descartar-lote.action";
-import { restaurarLote } from "@/actions/consulta/restaurar-lote.action";
+import { excluirLote } from "@/actions/consulta/excluir-lote.action";
 export function useAtualizarLote() {
   const queryClient = useQueryClient();
 
@@ -34,12 +34,12 @@ export function useDescartarLote() {
   });
 }
 
-export function useRestaurarLote() {
+export function useExcluirLote() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (loteId: string) => {
-      const result = await restaurarLote({ loteId });
+      const result = await excluirLote({ loteId });
       if (result?.serverError) throw new Error(result.serverError);
       return result?.data;
     },

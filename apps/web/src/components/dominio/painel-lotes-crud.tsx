@@ -27,8 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   useAtualizarLote,
-  useDescartarLote,
-  useRestaurarLote,
+  useExcluirLote,
 } from "@/hooks/mutations/use-lote-mutations";
 import { useLotes } from "@/hooks/queries/use-lotes";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -78,8 +77,7 @@ export function PainelLotesCrud() {
 
   const { data: lotes, isLoading, refetch, isFetching } = useLotes(filtros);
   const atualizar = useAtualizarLote();
-  const descartar = useDescartarLote();
-  const restaurar = useRestaurarLote();
+  const excluir = useExcluirLote();
 
   const abrirEdicao = (lote: Lote) => {
     setLoteEdicao(lote);
@@ -105,23 +103,12 @@ export function PainelLotesCrud() {
   const confirmarExclusao = async () => {
     if (!loteExclusao) return;
     try {
-      await descartar.mutateAsync(loteExclusao.id);
-      toast.success("Lote excluído");
+      await excluir.mutateAsync(loteExclusao.id);
+      toast.success("Lote removido permanentemente");
       setLoteExclusao(null);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Erro ao excluir lote",
-      );
-    }
-  };
-
-  const handleRestaurar = async (lote: Lote) => {
-    try {
-      await restaurar.mutateAsync(lote.id);
-      toast.success("Lote restaurado");
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao restaurar lote",
       );
     }
   };
@@ -263,29 +250,18 @@ export function PainelLotesCrud() {
                                   </Link>
                                 </Button>
                               )}
-
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                title="Excluir"
-                                className="text-red-700 hover:text-red-800"
-                                onClick={() => setLoteExclusao(lote)}
-                              >
-                                <IconTrash className="h-4 w-4" />
-                              </Button>
                             </>
                           )}
 
-                          {lote.status === "DESCARTADO" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleRestaurar(lote)}
-                              disabled={restaurar.isPending}
-                            >
-                              Restaurar
-                            </Button>
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Excluir permanentemente"
+                            className="text-red-700 hover:text-red-800"
+                            onClick={() => setLoteExclusao(lote)}
+                          >
+                            <IconTrash className="h-4 w-4" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -342,8 +318,9 @@ export function PainelLotesCrud() {
           <DialogHeader>
             <DialogTitle>Excluir lote?</DialogTitle>
             <DialogDescription>
-              O lote &quot;{loteExclusao?.nomeArquivo}&quot; será marcado como
-              descartado. Os dados permanecem no histórico de auditoria.
+              O lote &quot;{loteExclusao?.nomeArquivo}&quot; e todas as suas
+              consultas serão removidos permanentemente do banco de dados. Esta
+              ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3">
@@ -357,7 +334,7 @@ export function PainelLotesCrud() {
             <Button
               variant="destructive"
               className="flex-1"
-              disabled={descartar.isPending}
+              disabled={excluir.isPending}
               onClick={confirmarExclusao}
             >
               Excluir

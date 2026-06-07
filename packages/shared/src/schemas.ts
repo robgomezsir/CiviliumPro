@@ -31,6 +31,10 @@ export const descartarLoteSchema = z.object({
   loteId: z.string().uuid(),
 });
 
+export const excluirLoteSchema = z.object({
+  loteId: z.string().uuid(),
+});
+
 export const atualizarLoteSchema = z.object({
   loteId: z.string().uuid(),
   nomeArquivo: z
