@@ -6,7 +6,7 @@ import {
   pessoaPlanilhaSchema,
   type PessoaPlanilha,
 } from "@civilium/shared";
-import { IconFileSpreadsheet, IconUpload } from "@tabler/icons-react";
+import { IconDownload, IconFileSpreadsheet, IconUpload } from "@tabler/icons-react";
 import Papa from "papaparse";
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
@@ -118,13 +118,20 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
         <CardTitle>Enviar planilha</CardTitle>
+        <Button variant="outline" size="sm" asChild>
+          <a href="/modelo-planilha.csv" download="modelo-planilha.csv">
+            <IconDownload className="h-4 w-4" />
+            Baixar modelo CSV
+          </a>
+        </Button>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-slate-600">
-          Colunas obrigatórias: {COLUNAS_PLANILHA.join(", ")}. Máximo de{" "}
-          {MAX_PESSOAS_POR_LOTE} pessoas por lote.
+          Colunas obrigatórias: {COLUNAS_PLANILHA.join(", ")}. Data de
+          nascimento no formato DD/MM/AAAA. Máximo de {MAX_PESSOAS_POR_LOTE}{" "}
+          pessoas por lote.
         </p>
         <div
           onDragOver={(e) => {
