@@ -406,3 +406,15 @@ Use `react-hot-toast`:
 - **Pend-2** Mecanismo de streaming do CAPTCHA para o usuário: SSE (Server-Sent Events) ou WebSocket. Sugestão: SSE por ser mais simples e compatível com Next.js App Router sem servidor adicional.
 - **Pend-3** Autenticação: MVP público (sem login) ou exige conta. Sugestão: sem autenticação no MVP single-user.
 - **Pend-4** Limite de linhas por lote: definir máximo para evitar sessões de browser muito longas. Sugestão: 100 linhas por lote no MVP.
+
+---
+
+## Deploy e versionamento
+
+Após concluir alterações de código que devam ir para produção, **sempre**:
+
+1. `git add` + `git commit` com mensagem clara em português
+2. `git push origin master`
+3. `npx vercel deploy --prod --yes` em `apps/web`
+
+Não aguardar pedido explícito do usuário para commit/deploy, exceto se não houver mudanças para publicar.
