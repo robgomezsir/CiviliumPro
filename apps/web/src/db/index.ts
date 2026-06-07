@@ -9,12 +9,18 @@ let dbInstance: Db | null = null;
 function getDb(): Db {
   if (dbInstance) return dbInstance;
 
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString =
+    process.env.POSTGRES_URL ?? process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL não configurada");
   }
 
-  const client = postgres(connectionString, { prepare: false });
+  const client = postgres(connectionString, {
+    prepare: false,
+    max: process.env.VERCEL ? 1 : 10,
+    connect_timeout: 15,
+    ssl: "require",
+  });
   dbInstance = drizzle(client, { schema });
   return dbInstance;
 }

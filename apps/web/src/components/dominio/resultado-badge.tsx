@@ -1,11 +1,5 @@
+import type { StatusConsulta } from "@civilium/shared";
 import { Badge } from "@/components/ui/badge";
-
-type StatusConsulta =
-  | "PENDENTE"
-  | "EM_ANDAMENTO"
-  | "CONFERE"
-  | "NAO_CONFERE"
-  | "ERRO";
 
 const labels: Record<StatusConsulta, string> = {
   PENDENTE: "Pendente",
@@ -13,17 +7,25 @@ const labels: Record<StatusConsulta, string> = {
   CONFERE: "CONFERE",
   NAO_CONFERE: "NÃO CONFERE",
   ERRO: "ERRO",
+  ABANDONADO: "Abandonado",
+  EXPIRADO: "Expirado",
+  CAPTCHA_INVALIDO: "CAPTCHA inválido",
+  PORTAL_INDISPONIVEL: "Portal indisponível",
 };
 
 const variants: Record<
   StatusConsulta,
-  "pendente" | "andamento" | "confere" | "naoConfere" | "erro"
+  "pendente" | "andamento" | "confere" | "naoConfere" | "erro" | "default"
 > = {
   PENDENTE: "pendente",
   EM_ANDAMENTO: "andamento",
   CONFERE: "confere",
   NAO_CONFERE: "naoConfere",
   ERRO: "erro",
+  ABANDONADO: "erro",
+  EXPIRADO: "erro",
+  CAPTCHA_INVALIDO: "erro",
+  PORTAL_INDISPONIVEL: "erro",
 };
 
 export function ResultadoBadge({ status }: { status: StatusConsulta }) {

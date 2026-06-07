@@ -19,9 +19,7 @@ export function useConsultas(loteId: string) {
     refetchInterval: (query) => {
       const rows = query.state.data;
       if (!rows?.length) return false;
-      const emAndamento = rows.some(
-        (c) => c.status === "EM_ANDAMENTO" || c.status === "PENDENTE",
-      );
+      const emAndamento = rows.some((c) => c.status === "EM_ANDAMENTO");
       return emAndamento ? 2000 : false;
     },
   });

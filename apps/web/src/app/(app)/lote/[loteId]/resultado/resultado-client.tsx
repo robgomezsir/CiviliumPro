@@ -47,7 +47,15 @@ export function ResultadoClient({ loteId }: Props) {
     return {
       confere: rows.filter((c) => c.status === "CONFERE").length,
       naoConfere: rows.filter((c) => c.status === "NAO_CONFERE").length,
-      erros: rows.filter((c) => c.status === "ERRO").length,
+      erros: rows.filter((c) =>
+        [
+          "ERRO",
+          "ABANDONADO",
+          "EXPIRADO",
+          "CAPTCHA_INVALIDO",
+          "PORTAL_INDISPONIVEL",
+        ].includes(c.status),
+      ).length,
     };
   }, [consultas]);
 

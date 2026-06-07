@@ -1,5 +1,6 @@
 "use client";
 
+import { consultaPodeRetentar, type StatusConsulta } from "@civilium/shared";
 import { formatarCpf } from "@civilium/shared";
 import { ResultadoBadge } from "@/components/dominio/resultado-badge";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ type ConsultaRow = {
   nomeInformado: string;
   cpf: string;
   nomeNaReceita: string | null;
-  status: "PENDENTE" | "EM_ANDAMENTO" | "CONFERE" | "NAO_CONFERE" | "ERRO";
+  status: StatusConsulta;
   erroMensagem: string | null;
 };
 
@@ -38,9 +39,7 @@ export function TabelaResultados({
     let rows = consultas;
 
     if (somentePendentes) {
-      rows = rows.filter(
-        (c) => c.status === "PENDENTE" || c.status === "EM_ANDAMENTO",
-      );
+      rows = rows.filter((c) => consultaPodeRetentar(c.status));
     }
 
     if (filtroStatus && filtroStatus.length > 0) {
@@ -59,22 +58,23 @@ export function TabelaResultados({
     return rows;
   }, [consultas, filtroStatus, somentePendentes, buscaDebounced]);
 
-  const inicio = (pagina - 1) * porPagina;
-  const paginadas = filtradas.slice(inicio, inicio + porPagina);
+  const paginadas = useMemo(() => {
+    const inicio = (pagina - 1) * porPagina;
+    return filtradas.slice(inicio, inicio + porPagina);
+  }, [filtradas, pagina, porPagina]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Input
         placeholder="Buscar por nome..."
         value={busca}
         onChange={(e) => setBusca(e.target.value)}
-        aria-label="Buscar por nome"
+        className="max-w-sm"
       />
       <div className="overflow-x-auto rounded-lg border border-slate-200">
         <table className="min-w-full text-sm">
-          <thead className="bg-slate-50 text-left text-slate-700">
+          <thead className="bg-slate-50 text-left text-slate-600">
             <tr>
-              <th className="px-4 py-3 font-medium">#</th>
               <th className="px-4 py-3 font-medium">Nome informado</th>
               <th className="px-4 py-3 font-medium">CPF</th>
               <th className="px-4 py-3 font-medium">Nome na Receita</th>
@@ -82,31 +82,20 @@ export function TabelaResultados({
             </tr>
           </thead>
           <tbody>
-            {paginadas.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
-                  Nenhuma pessoa encontrada
+            {paginadas.map((c) => (
+              <tr key={c.id} className="border-t border-slate-100">
+                <td className="px-4 py-3">{c.nomeInformado}</td>
+                <td className="px-4 py-3">{formatarCpf(c.cpf)}</td>
+                <td className="px-4 py-3">{c.nomeNaReceita ?? "—"}</td>
+                <td className="px-4 py-3">
+                  <ResultadoBadge status={c.status} />
                 </td>
               </tr>
-            ) : (
-              paginadas.map((consulta) => (
-                <tr key={consulta.id} className="border-t border-slate-100">
-                  <td className="px-4 py-3">{consulta.ordemNaLista}</td>
-                  <td className="px-4 py-3">{consulta.nomeInformado}</td>
-                  <td className="px-4 py-3 font-mono">{formatarCpf(consulta.cpf)}</td>
-                  <td className="px-4 py-3">
-                    {consulta.nomeNaReceita ?? consulta.erroMensagem ?? "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <ResultadoBadge status={consulta.status} />
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-slate-500">
         Mostrando {paginadas.length} de {filtradas.length} pessoas
       </p>
     </div>

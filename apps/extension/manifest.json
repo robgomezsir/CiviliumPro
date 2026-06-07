@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Civilium Bridge",
+  "version": "2.2.0",
+  "description": "Ponte entre o Civilium e o portal da Receita Federal",
+  "permissions": ["tabs", "storage"],
+  "host_permissions": [
+    "https://servicos.receita.fazenda.gov.br/*",
+    "https://civilium-pro-web.vercel.app/*",
+    "http://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://civilium-pro-web.vercel.app/*",
+        "http://localhost:3000/*"
+      ],
+      "js": ["bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://servicos.receita.fazenda.gov.br/*"],
+      "js": ["content_script.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

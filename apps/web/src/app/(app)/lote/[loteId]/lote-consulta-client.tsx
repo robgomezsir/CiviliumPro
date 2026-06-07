@@ -1,7 +1,8 @@
 "use client";
 
+import { consultaEstaPendente, consultaPodeRetentar } from "@civilium/shared";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
@@ -9,16 +10,15 @@ import {
   IconPlayerPlay,
   IconArrowRight,
 } from "@tabler/icons-react";
-import { enviarCaptcha } from "@/actions/consulta/enviar-captcha.action";
-import { iniciarConsulta } from "@/actions/consulta/iniciar-consulta.action";
 import { pausarLote } from "@/actions/consulta/pausar-lote.action";
-import { CaptchaViewer } from "@/components/dominio/captcha-viewer";
+import { AvisoExtensao } from "@/components/dominio/aviso-extensao";
+import { BotaoAbrirPortal } from "@/components/dominio/botao-abrir-portal";
 import { ProgressoLote } from "@/components/dominio/progresso-lote";
 import { TabelaResultados } from "@/components/dominio/tabela-resultados";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { useConsultas } from "@/hooks/queries/use-consultas";
 import { useLote } from "@/hooks/queries/use-lote";
-import { useRegistrarResultado } from "@/hooks/mutations/use-registrar-resultado";
 import { useUrlNumberState } from "@/hooks/use-url-state";
 
 type Props = {
@@ -29,140 +29,35 @@ export function LoteConsultaClient({ loteId }: Props) {
   const router = useRouter();
   const { data: lote, isLoading: loadingLote } = useLote(loteId);
   const { data: consultas, isLoading: loadingConsultas } = useConsultas(loteId);
-  const registrarResultado = useRegistrarResultado(loteId);
   const [pessoaIndex, setPessoaIndex] = useUrlNumberState("pessoa", 1);
-
-  const [captchaImage, setCaptchaImage] = useState<string | null>(null);
-  const [consultaAtivaId, setConsultaAtivaId] = useState<string | null>(null);
-  const [isProcessando, setIsProcessando] = useState(false);
   const [pausado, setPausado] = useState(false);
+
+  useEffect(() => {
+    if (lote) setPausado(Boolean(lote.pausado));
+  }, [lote]);
 
   const stats = useMemo(() => {
     const rows = consultas ?? [];
     return {
       confere: rows.filter((c) => c.status === "CONFERE").length,
       naoConfere: rows.filter((c) => c.status === "NAO_CONFERE").length,
-      erros: rows.filter((c) => c.status === "ERRO").length,
-      pendentes: rows.filter(
-        (c) => c.status === "PENDENTE" || c.status === "EM_ANDAMENTO",
+      erros: rows.filter((c) =>
+        ["ERRO", "ABANDONADO", "EXPIRADO", "CAPTCHA_INVALIDO", "PORTAL_INDISPONIVEL"].includes(
+          c.status,
+        ),
       ).length,
+      pendentes: rows.filter((c) => consultaPodeRetentar(c.status)).length,
     };
   }, [consultas]);
 
   const consultaAtual = useMemo(() => {
     if (!consultas?.length) return null;
     const porOrdem = consultas.find((c) => c.ordemNaLista === pessoaIndex);
-    if (porOrdem && (porOrdem.status === "PENDENTE" || porOrdem.status === "EM_ANDAMENTO")) {
+    if (porOrdem && consultaPodeRetentar(porOrdem.status)) {
       return porOrdem;
     }
-    return (
-      consultas.find((c) => c.status === "PENDENTE" || c.status === "EM_ANDAMENTO") ??
-      null
-    );
+    return consultas.find((c) => consultaPodeRetentar(c.status)) ?? null;
   }, [consultas, pessoaIndex]);
-
-  const iniciarProximaConsulta = useCallback(async () => {
-    if (!consultaAtual || pausado || isProcessando) return;
-
-    setIsProcessando(true);
-    setCaptchaImage(null);
-
-    try {
-      const result = await iniciarConsulta({
-        loteId,
-        consultaId: consultaAtual.id,
-      });
-
-      if (result?.serverError) {
-        throw new Error(result.serverError);
-      }
-
-      setConsultaAtivaId(consultaAtual.id);
-      setCaptchaImage(result?.data?.captchaImage ?? null);
-      setPessoaIndex(consultaAtual.ordemNaLista);
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Não foi possível iniciar a consulta",
-      );
-    } finally {
-      setIsProcessando(false);
-    }
-  }, [consultaAtual, pausado, isProcessando, loteId, setPessoaIndex]);
-
-  useEffect(() => {
-    if (!consultas || !lote) return;
-    if (lote.status === "CONCLUIDO") {
-      router.push(`/lote/${loteId}/resultado`);
-      return;
-    }
-    if (pausado || isProcessando || captchaImage || consultaAtivaId) return;
-    if (!consultaAtual) return;
-    if (consultaAtual.status === "PENDENTE") {
-      void iniciarProximaConsulta();
-    }
-  }, [
-    consultas,
-    lote,
-    pausado,
-    isProcessando,
-    captchaImage,
-    consultaAtivaId,
-    consultaAtual,
-    iniciarProximaConsulta,
-    loteId,
-    router,
-  ]);
-
-  const handleConfirmarCaptcha = async (captcha: string) => {
-    if (!consultaAtivaId) return;
-
-    setIsProcessando(true);
-    try {
-      const captchaResult = await enviarCaptcha({
-        loteId,
-        consultaId: consultaAtivaId,
-        captcha,
-      });
-
-      if (captchaResult?.serverError) {
-        throw new Error(captchaResult.serverError);
-      }
-
-      const resultado = captchaResult?.data;
-      if (!resultado) {
-        throw new Error("Não foi possível confirmar o CAPTCHA");
-      }
-
-      await registrarResultado.mutateAsync({
-        consultaId: consultaAtivaId,
-        nomeNaReceita: resultado.nomeNaReceita,
-        erroMensagem: resultado.erroMensagem,
-      });
-
-      setCaptchaImage(null);
-      setConsultaAtivaId(null);
-
-      const restantes =
-        consultas?.filter((c) => c.status === "PENDENTE").length ?? 0;
-
-      if (restantes <= 1) {
-        toast.success("Lote verificado. Revise os resultados.");
-        router.push(`/lote/${loteId}/resultado`);
-      } else {
-        toast.success("Consulta concluída");
-      }
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Não foi possível confirmar o CAPTCHA",
-      );
-    } finally {
-      setIsProcessando(false);
-    }
-  };
 
   const handlePausar = async () => {
     const novoPausado = !pausado;
@@ -187,9 +82,12 @@ export function LoteConsultaClient({ loteId }: Props) {
   }
 
   const todasVerificadas = stats.pendentes === 0;
+  const aguardandoResultado = consultaAtual?.status === "EM_ANDAMENTO";
 
   return (
     <div className="space-y-6">
+      <AvisoExtensao />
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">{lote.nomeArquivo}</h1>
@@ -238,12 +136,51 @@ export function LoteConsultaClient({ loteId }: Props) {
         pendentes={stats.pendentes}
       />
 
-      {!todasVerificadas && !pausado && (
-        <CaptchaViewer
-          captchaImage={captchaImage}
-          isLoading={isProcessando}
-          onConfirmar={handleConfirmarCaptcha}
-        />
+      {!todasVerificadas && !pausado && consultaAtual && (
+        <Card className="border-blue-200">
+          <CardContent className="space-y-4 pt-6">
+            <div>
+              <p className="font-medium text-slate-900">
+                {consultaAtual.nomeInformado}
+              </p>
+              <p className="text-sm text-slate-600">
+                CPF {consultaAtual.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}
+              </p>
+            </div>
+
+            {consultaAtual.status === "CAPTCHA_INVALIDO" && (
+              <p className="text-sm text-amber-800">
+                CAPTCHA inválido na tentativa anterior. Abra o portal novamente e
+                tente outro código.
+              </p>
+            )}
+
+            {["ABANDONADO", "EXPIRADO"].includes(consultaAtual.status) && (
+              <p className="text-sm text-amber-800">
+                A consulta anterior não foi concluída. Você pode tentar novamente.
+              </p>
+            )}
+
+            {aguardandoResultado ? (
+              <p className="text-sm text-blue-800">
+                Aguardando resultado na aba da Receita Federal. Resolva o CAPTCHA
+                e aguarde — o resultado aparecerá automaticamente aqui.
+              </p>
+            ) : (
+              <p className="text-sm text-slate-600">
+                Clique abaixo para abrir o portal da Receita Federal em uma nova
+                aba. Resolva o CAPTCHA manualmente na página oficial.
+              </p>
+            )}
+
+            <BotaoAbrirPortal
+              loteId={loteId}
+              consultaId={consultaAtual.id}
+              disabled={aguardandoResultado}
+              onAberto={() => setPessoaIndex(consultaAtual.ordemNaLista)}
+            />
+          </CardContent>
+        </Card>
       )}
 
       <div>

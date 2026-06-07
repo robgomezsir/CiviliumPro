@@ -1,14 +1,13 @@
 "use server";
 
+import crypto from "node:crypto";
+import { consultaPodeRetentar } from "@civilium/shared";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
-import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { consultas } from "@/db/schema";
-import {
-  abrirSessaoAutomacao,
-  iniciarConsultaAutomacao,
-} from "@/lib/automacao/sessao";
+import { consultas, lotes } from "@/db/schema";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { montarUrlReceita } from "@/lib/receita-url";
 import { actionClient } from "@/lib/safe-action";
 
 const schema = z.object({
@@ -34,26 +33,49 @@ export const iniciarConsulta = actionClient
       )
       .limit(1);
 
-    if (!consulta) throw new Error("Pessoa não encontrada no lote");
+    if (!consulta) {
+      throw new Error("Consulta não encontrada");
+    }
 
-    if (consulta.status !== "PENDENTE" && consulta.status !== "EM_ANDAMENTO") {
+    if (!consultaPodeRetentar(consulta.status)) {
       throw new Error("Esta pessoa já foi verificada");
     }
 
-    await abrirSessaoAutomacao(parsedInput.loteId);
+    const tokenConsulta = crypto.randomUUID();
+    const correlationId = crypto.randomUUID();
+    const agora = new Date();
+    const ehRetentativa = consulta.resultadoRecebidoEm != null;
 
-    await db
-      .update(consultas)
-      .set({ status: "EM_ANDAMENTO" })
-      .where(eq(consultas.id, parsedInput.consultaId));
+    await db.transaction(async (tx) => {
+      if (ehRetentativa) {
+        await tx
+          .update(lotes)
+          .set({
+            consultadasCount: sql`GREATEST(0, ${lotes.consultadasCount} - 1)`,
+            updatedAt: agora,
+          })
+          .where(eq(lotes.id, consulta.loteId));
+      }
 
-    const resultado = await iniciarConsultaAutomacao(parsedInput.loteId, {
-      loteId: parsedInput.loteId,
-      cpf: consulta.cpf,
-      dataNascimento: consulta.dataNascimento,
-      consultaId: consulta.id,
-      nomeInformado: consulta.nomeInformado,
+      await tx
+        .update(consultas)
+        .set({
+          status: "EM_ANDAMENTO",
+          tokenConsulta,
+          abaAbertaEm: agora,
+          resultadoRecebidoEm: null,
+          consultadaEm: null,
+          erroMensagem: null,
+          nomeNaReceita: null,
+        })
+        .where(eq(consultas.id, parsedInput.consultaId));
     });
 
-    return resultado;
+    return {
+      consultaId: parsedInput.consultaId,
+      loteId: consulta.loteId,
+      correlationId,
+      tokenConsulta,
+      url: montarUrlReceita(consulta.cpf, consulta.dataNascimento),
+    };
   });

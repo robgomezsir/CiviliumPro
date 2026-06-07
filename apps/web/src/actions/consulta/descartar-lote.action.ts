@@ -4,7 +4,6 @@ import { descartarLoteSchema } from "@civilium/shared";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { auditoriaEventos, lotes } from "@/db/schema";
-import { fecharSessaoAutomacao } from "@/lib/automacao/sessao";
 import { actionClient } from "@/lib/safe-action";
 
 export const descartarLote = actionClient
@@ -39,8 +38,6 @@ export const descartarLote = actionClient
         snapshotDepois: depois,
       });
     });
-
-    await fecharSessaoAutomacao(parsedInput.loteId);
 
     return { ok: true };
   });

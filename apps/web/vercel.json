@@ -2,10 +2,10 @@
   "buildCommand": "cd ../.. && pnpm --filter @civilium/web build",
   "installCommand": "cd ../.. && pnpm install",
   "framework": "nextjs",
-  "functions": {
-    "src/app/**": {
-      "maxDuration": 60,
-      "memory": 1024
+  "crons": [
+    {
+      "path": "/api/expirar-consultas",
+      "schedule": "*/5 * * * *"
     }
-  }
+  ]
 }

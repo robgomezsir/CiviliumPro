@@ -1,8 +1,6 @@
 import { Suspense } from "react";
 import { LoteConsultaClient } from "./lote-consulta-client";
 
-export const maxDuration = 60;
-
 type Props = {
   params: Promise<{ loteId: string }>;
 };

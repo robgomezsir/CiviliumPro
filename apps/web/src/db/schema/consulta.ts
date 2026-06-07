@@ -14,6 +14,10 @@ export const statusConsultaEnum = pgEnum("status_consulta", [
   "CONFERE",
   "NAO_CONFERE",
   "ERRO",
+  "ABANDONADO",
+  "EXPIRADO",
+  "CAPTCHA_INVALIDO",
+  "PORTAL_INDISPONIVEL",
 ]);
 
 export const consultas = pgTable("consultas", {
@@ -28,6 +32,11 @@ export const consultas = pgTable("consultas", {
   nomeNaReceita: text("nome_na_receita"),
   status: statusConsultaEnum("status").default("PENDENTE").notNull(),
   erroMensagem: text("erro_mensagem"),
+  tokenConsulta: text("token_consulta"),
+  resultadoRecebidoEm: timestamp("resultado_recebido_em"),
+  abaAbertaEm: timestamp("aba_aberta_em"),
   consultadaEm: timestamp("consultada_em"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export type StatusConsulta = (typeof statusConsultaEnum.enumValues)[number];

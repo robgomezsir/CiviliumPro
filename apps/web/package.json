@@ -1,6 +1,6 @@
 {
   "name": "@civilium/web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:push:force": "drizzle-kit push --force"
   },
   "dependencies": {
     "@civilium/shared": "workspace:^",
@@ -17,7 +18,6 @@
     "@radix-ui/react-label": "^2.1.9",
     "@radix-ui/react-progress": "^1.1.9",
     "@radix-ui/react-slot": "^1.2.5",
-    "@sparticuz/chromium": "^149.0.0",
     "@supabase/supabase-js": "^2.107.0",
     "@tabler/icons-react": "^3.44.0",
     "@tanstack/react-query": "^5.101.0",
@@ -28,7 +28,6 @@
     "next": "16.2.7",
     "next-safe-action": "^8.5.3",
     "papaparse": "^5.5.3",
-    "playwright-core": "^1.60.0",
     "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -41,6 +40,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/chrome": "^0.0.304",
     "@types/node": "^20",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
@@ -49,7 +49,6 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
-    "playwright": "^1.52.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { IconArrowRight, IconPlus } from "@tabler/icons-react";
+import { AvisoExtensao } from "@/components/dominio/aviso-extensao";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLotes } from "@/hooks/queries/use-lotes";
@@ -19,6 +20,8 @@ export default function PainelPage() {
 
   return (
     <div className="space-y-6">
+      <AvisoExtensao />
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Painel</h1>

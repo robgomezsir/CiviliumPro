@@ -1,4 +1,16 @@
-import { formatarCpf } from "@civilium/shared";
+import { formatarCpf, type StatusConsulta } from "@civilium/shared";
+
+const labelsStatus: Record<StatusConsulta, string> = {
+  PENDENTE: "Pendente",
+  EM_ANDAMENTO: "Em andamento",
+  CONFERE: "CONFERE",
+  NAO_CONFERE: "NÃO CONFERE",
+  ERRO: "ERRO",
+  ABANDONADO: "Abandonado",
+  EXPIRADO: "Expirado",
+  CAPTCHA_INVALIDO: "CAPTCHA inválido",
+  PORTAL_INDISPONIVEL: "Portal indisponível",
+};
 
 type LinhaExportacao = {
   nomeInformado: string;
@@ -20,7 +32,7 @@ export function gerarCsvResultados(linhas: LinhaExportacao[]): string {
     l.nomeInformado,
     formatarCpf(l.cpf),
     l.nomeNaReceita ?? "",
-    l.status === "NAO_CONFERE" ? "NÃO CONFERE" : l.status,
+    labelsStatus[l.status as StatusConsulta] ?? l.status,
     l.consultadaEm ? l.consultadaEm.toISOString() : "",
   ]);
   return [header, ...rows]

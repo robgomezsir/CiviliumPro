@@ -22,13 +22,6 @@ export const iniciarLoteSchema = z.object({
     .max(MAX_PESSOAS_POR_LOTE, `Máximo de ${MAX_PESSOAS_POR_LOTE} pessoas por lote`),
 });
 
-export const registrarResultadoSchema = z.object({
-  consultaId: z.string().uuid(),
-  loteId: z.string().uuid(),
-  nomeNaReceita: z.string().optional(),
-  erroMensagem: z.string().optional(),
-});
-
 export const pausarLoteSchema = z.object({
   loteId: z.string().uuid(),
   pausado: z.boolean(),
