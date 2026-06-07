@@ -189,7 +189,7 @@ export function LoteConsultaClient({ loteId }: Props) {
         <h2 className="mb-3 text-lg font-semibold text-slate-900">
           Fila de verificação
         </h2>
-        <TabelaResultados consultas={consultas} somentePendentes />
+        <TabelaResultados consultas={consultas} />
       </div>
     </div>
   );

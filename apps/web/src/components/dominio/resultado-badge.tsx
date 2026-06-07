@@ -1,4 +1,4 @@
-import type { StatusConsulta } from "@civilium/shared";
+import { rotuloErroReceita, type StatusConsulta } from "@civilium/shared";
 import { Badge } from "@/components/ui/badge";
 
 const labels: Record<StatusConsulta, string> = {
@@ -28,6 +28,24 @@ const variants: Record<
   PORTAL_INDISPONIVEL: "erro",
 };
 
-export function ResultadoBadge({ status }: { status: StatusConsulta }) {
-  return <Badge variant={variants[status]}>{labels[status]}</Badge>;
+type Props = {
+  status: StatusConsulta;
+  erroMensagem?: string | null;
+};
+
+export function ResultadoBadge({ status, erroMensagem }: Props) {
+  const label =
+    status === "ERRO" && erroMensagem
+      ? rotuloErroReceita(status, erroMensagem)
+      : labels[status];
+
+  return (
+    <Badge
+      variant={variants[status]}
+      title={erroMensagem ?? undefined}
+      className={erroMensagem ? "cursor-help" : undefined}
+    >
+      {label}
+    </Badge>
+  );
 }

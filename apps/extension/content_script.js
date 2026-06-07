@@ -3,6 +3,10 @@
 let enviado = false;
 let intervalo = null;
 
+function normalizarTexto(texto) {
+  return (texto ?? "").replace(/\s+/g, " ").trim();
+}
+
 function preencherFormulario() {
   const params = new URLSearchParams(location.search);
   const cpf = params.get("cpf");
@@ -20,6 +24,129 @@ function preencherFormulario() {
     dataInput.value = dataNascimento;
     dataInput.dispatchEvent(new Event("input", { bubbles: true }));
   }
+}
+
+function extrairMensagemErroDom() {
+  const seletores = [
+    ".mensagemForm",
+    ".mensagemErro",
+    "#mensagemErro",
+    "#idMensagem",
+    ".clConteudoCentro",
+    "#conteudo",
+    "body",
+  ];
+
+  for (const seletor of seletores) {
+    const el = document.querySelector(seletor);
+    const texto = normalizarTexto(el?.textContent);
+    if (!texto) continue;
+
+    if (
+      /divergente|inválido|invalido|não confere|nao confere|retorne a página anterior|retorne a pagina anterior/i.test(
+        texto,
+      )
+    ) {
+      return texto;
+    }
+  }
+
+  return null;
+}
+
+function extrairTrechoMensagem(texto, padrao) {
+  const match = texto.match(padrao);
+  return match ? normalizarTexto(match[0]) : null;
+}
+
+function detectarErroPortal(textoOriginal) {
+  const texto = normalizarTexto(textoOriginal);
+  const upper = texto.toUpperCase();
+
+  if (
+    /DATA DE NASCIMENTO INFORMADA/i.test(texto) &&
+    /DIVERGENTE/i.test(texto)
+  ) {
+    return {
+      status: "ERRO",
+      mensagemErro:
+        extrairMensagemErroDom() ||
+        extrairTrechoMensagem(
+          texto,
+          /Data de nascimento informada[\s\S]*?(?=Retorne à página anterior e informe-o novamente!|Retorne a página anterior e informe-o novamente!|$)/i,
+        ) ||
+        "Data de nascimento divergente da base da Receita Federal",
+    };
+  }
+
+  if (
+    (/CPF INFORMADO/i.test(upper) ||
+      /N[ÚU]MERO DO CPF/i.test(upper) ||
+      /DADOS DO CPF/i.test(upper)) &&
+    /DIVERGENTE/i.test(upper)
+  ) {
+    return {
+      status: "ERRO",
+      mensagemErro:
+        extrairMensagemErroDom() ||
+        extrairTrechoMensagem(
+          texto,
+          /CPF[\s\S]*?divergente[\s\S]*?(?=Retorne|$)/i,
+        ) ||
+        "CPF divergente da base da Receita Federal",
+    };
+  }
+
+  if (upper.includes("CPF INVÁLIDO") || upper.includes("CPF INVALIDO")) {
+    return {
+      status: "ERRO",
+      mensagemErro: extrairMensagemErroDom() || "CPF inválido",
+    };
+  }
+
+  if (
+    upper.includes("DATA DE NASCIMENTO INVÁLIDA") ||
+    upper.includes("DATA DE NASCIMENTO INVALIDA")
+  ) {
+    return {
+      status: "ERRO",
+      mensagemErro:
+        extrairMensagemErroDom() || "Data de nascimento inválida",
+    };
+  }
+
+  if (
+    upper.includes("OS CARACTERES DA IMAGEM") ||
+    upper.includes("CARACTERES DA IMAGEM NÃO CONFEREM") ||
+    upper.includes("CARACTERES DA IMAGEM NAO CONFEREM")
+  ) {
+    return {
+      status: "CAPTCHA_INVALIDO",
+      mensagemErro: "CAPTCHA inválido",
+    };
+  }
+
+  if (
+    upper.includes("SERVIÇO INDISPONÍVEL") ||
+    upper.includes("SERVICO INDISPONIVEL")
+  ) {
+    return {
+      status: "PORTAL_INDISPONIVEL",
+      mensagemErro: "Portal indisponível",
+    };
+  }
+
+  if (
+    upper.includes("RETORNE A PÁGINA ANTERIOR") ||
+    upper.includes("RETORNE A PAGINA ANTERIOR")
+  ) {
+    const msg = extrairMensagemErroDom();
+    if (msg) {
+      return { status: "ERRO", mensagemErro: msg };
+    }
+  }
+
+  return null;
 }
 
 function extrairNomeReceita() {
@@ -59,26 +186,10 @@ function extrairNomeReceita() {
 }
 
 function detectarResultado() {
-  const texto = document.body?.innerText?.toUpperCase() ?? "";
+  const texto = document.body?.innerText ?? "";
 
-  if (texto.includes("CPF INVÁLIDO") || texto.includes("CPF INVALIDO")) {
-    return { status: "ERRO", mensagemErro: "CPF inválido" };
-  }
-
-  if (
-    texto.includes("OS CARACTERES DA IMAGEM") ||
-    texto.includes("CARACTERES DA IMAGEM NÃO CONFEREM") ||
-    texto.includes("CARACTERES DA IMAGEM NAO CONFEREM")
-  ) {
-    return { status: "CAPTCHA_INVALIDO", mensagemErro: "CAPTCHA inválido" };
-  }
-
-  if (texto.includes("SERVIÇO INDISPONÍVEL") || texto.includes("SERVICO INDISPONIVEL")) {
-    return {
-      status: "PORTAL_INDISPONIVEL",
-      mensagemErro: "Portal indisponível",
-    };
-  }
+  const erro = detectarErroPortal(texto);
+  if (erro) return erro;
 
   const nome = extrairNomeReceita();
   if (nome) {

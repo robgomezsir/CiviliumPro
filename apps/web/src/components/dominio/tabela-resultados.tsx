@@ -1,6 +1,10 @@
 "use client";
 
-import { consultaPodeRetentar, type StatusConsulta } from "@civilium/shared";
+import {
+  consultaPodeRetentar,
+  consultaTemErroDetalhe,
+  type StatusConsulta,
+} from "@civilium/shared";
 import { formatarCpf } from "@civilium/shared";
 import { ResultadoBadge } from "@/components/dominio/resultado-badge";
 import { Input } from "@/components/ui/input";
@@ -51,7 +55,8 @@ export function TabelaResultados({
       rows = rows.filter(
         (c) =>
           c.nomeInformado.toLowerCase().includes(termo) ||
-          (c.nomeNaReceita?.toLowerCase().includes(termo) ?? false),
+          (c.nomeNaReceita?.toLowerCase().includes(termo) ?? false) ||
+          (c.erroMensagem?.toLowerCase().includes(termo) ?? false),
       );
     }
 
@@ -66,7 +71,7 @@ export function TabelaResultados({
   return (
     <div className="space-y-3">
       <Input
-        placeholder="Buscar por nome..."
+        placeholder="Buscar por nome ou mensagem de erro..."
         value={busca}
         onChange={(e) => setBusca(e.target.value)}
         className="max-w-sm"
@@ -79,6 +84,7 @@ export function TabelaResultados({
               <th className="px-4 py-3 font-medium">CPF</th>
               <th className="px-4 py-3 font-medium">Nome na Receita</th>
               <th className="px-4 py-3 font-medium">Resultado</th>
+              <th className="px-4 py-3 font-medium">Detalhe</th>
             </tr>
           </thead>
           <tbody>
@@ -88,7 +94,17 @@ export function TabelaResultados({
                 <td className="px-4 py-3">{formatarCpf(c.cpf)}</td>
                 <td className="px-4 py-3">{c.nomeNaReceita ?? "—"}</td>
                 <td className="px-4 py-3">
-                  <ResultadoBadge status={c.status} />
+                  <ResultadoBadge
+                    status={c.status}
+                    erroMensagem={c.erroMensagem}
+                  />
+                </td>
+                <td className="max-w-md px-4 py-3 text-slate-600">
+                  {consultaTemErroDetalhe(c.status) && c.erroMensagem ? (
+                    <p className="text-xs leading-relaxed">{c.erroMensagem}</p>
+                  ) : (
+                    "—"
+                  )}
                 </td>
               </tr>
             ))}

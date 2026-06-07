@@ -76,6 +76,7 @@ export function ResultadoClient({ loteId }: Props) {
         cpf: c.cpf,
         nomeNaReceita: c.nomeNaReceita,
         status: c.status,
+        erroMensagem: c.erroMensagem,
         consultadaEm: c.consultadaEm,
       })),
     );

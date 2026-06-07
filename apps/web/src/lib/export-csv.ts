@@ -17,6 +17,7 @@ type LinhaExportacao = {
   cpf: string;
   nomeNaReceita: string | null;
   status: string;
+  erroMensagem?: string | null;
   consultadaEm: Date | null;
 };
 
@@ -26,6 +27,7 @@ export function gerarCsvResultados(linhas: LinhaExportacao[]): string {
     "CPF",
     "Nome na Receita",
     "Resultado",
+    "Detalhe do erro",
     "Consultada em",
   ];
   const rows = linhas.map((l) => [
@@ -33,6 +35,7 @@ export function gerarCsvResultados(linhas: LinhaExportacao[]): string {
     formatarCpf(l.cpf),
     l.nomeNaReceita ?? "",
     labelsStatus[l.status as StatusConsulta] ?? l.status,
+    l.erroMensagem ?? "",
     l.consultadaEm ? l.consultadaEm.toISOString() : "",
   ]);
   return [header, ...rows]
