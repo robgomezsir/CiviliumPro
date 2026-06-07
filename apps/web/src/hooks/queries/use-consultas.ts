@@ -1,5 +1,6 @@
 "use client";
 
+import { consultaPodeRetentar } from "@civilium/shared";
 import { useQuery } from "@tanstack/react-query";
 import { buscarConsultas } from "@/actions/consulta/buscar-consultas.action";
 
@@ -19,8 +20,13 @@ export function useConsultas(loteId: string) {
     refetchInterval: (query) => {
       const rows = query.state.data;
       if (!rows?.length) return false;
+
+      const iniciou = rows.some((c) => c.status !== "PENDENTE");
+      const pendentes = rows.some((c) => consultaPodeRetentar(c.status));
+      if (!iniciou || !pendentes) return false;
+
       const emAndamento = rows.some((c) => c.status === "EM_ANDAMENTO");
-      return emAndamento ? 2000 : false;
+      return emAndamento ? 2000 : 4000;
     },
   });
 }

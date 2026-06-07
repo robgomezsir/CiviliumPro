@@ -2,12 +2,13 @@
 
 import { consultaPodeRetentar } from "@civilium/shared";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import {
   IconPlayerPause,
   IconPlayerPlay,
   IconArrowRight,
+  IconCircleCheck,
 } from "@tabler/icons-react";
 import { pausarLote } from "@/actions/consulta/pausar-lote.action";
 import { AvisoExtensao } from "@/components/dominio/aviso-extensao";
@@ -16,6 +17,13 @@ import { ProgressoLote } from "@/components/dominio/progresso-lote";
 import { TabelaResultados } from "@/components/dominio/tabela-resultados";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useConsultas } from "@/hooks/queries/use-consultas";
 import { useLote } from "@/hooks/queries/use-lote";
 import { useUrlNumberState } from "@/hooks/use-url-state";
@@ -29,6 +37,8 @@ export function LoteConsultaClient({ loteId }: Props) {
   const { data: consultas, isLoading: loadingConsultas } = useConsultas(loteId);
   const [pessoaIndex, setPessoaIndex] = useUrlNumberState("pessoa", 1);
   const [pausado, setPausado] = useState(false);
+  const [modalFimLista, setModalFimLista] = useState(false);
+  const pendentesAnterior = useRef<number | null>(null);
 
   useEffect(() => {
     if (lote) setPausado(Boolean(lote.pausado));
@@ -42,6 +52,26 @@ export function LoteConsultaClient({ loteId }: Props) {
       setPessoaIndex(emAndamento.ordemNaLista);
     }
   }, [consultas, setPessoaIndex]);
+
+  useEffect(() => {
+    if (!consultas?.length) return;
+
+    const pendentes = consultas.filter((c) =>
+      consultaPodeRetentar(c.status),
+    ).length;
+    const iniciou = consultas.some((c) => c.status !== "PENDENTE");
+
+    if (
+      iniciou &&
+      pendentes === 0 &&
+      pendentesAnterior.current !== null &&
+      pendentesAnterior.current > 0
+    ) {
+      setModalFimLista(true);
+    }
+
+    pendentesAnterior.current = pendentes;
+  }, [consultas]);
 
   const stats = useMemo(() => {
     const rows = consultas ?? [];
@@ -217,6 +247,48 @@ export function LoteConsultaClient({ loteId }: Props) {
         </h2>
         <TabelaResultados consultas={consultas} />
       </div>
+
+      <Dialog open={modalFimLista} onOpenChange={setModalFimLista}>
+        <DialogContent>
+          <DialogHeader>
+            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-civilium-accent/20">
+              <IconCircleCheck className="h-7 w-7 text-civilium-accent" />
+            </div>
+            <DialogTitle className="text-center">Pesquisa concluída</DialogTitle>
+            <DialogDescription className="text-center">
+              Todas as {lote.totalPessoas} pessoas da lista foram verificadas.
+              Você chegou ao final da pesquisa.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-3 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm">
+            <div>
+              <p className="text-2xl font-bold text-emerald-600">{stats.confere}</p>
+              <p className="text-slate-600">Conferem</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-amber-600">{stats.naoConfere}</p>
+              <p className="text-slate-600">Não conferem</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-red-600">{stats.erros}</p>
+              <p className="text-slate-600">Erros</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button variant="outline" onClick={() => setModalFimLista(false)}>
+              Continuar na página
+            </Button>
+            <Button asChild>
+              <Link href={`/lote/${loteId}/resultado`}>
+                Ver resultados
+                <IconArrowRight className="h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
