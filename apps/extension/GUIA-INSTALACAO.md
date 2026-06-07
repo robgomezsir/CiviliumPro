@@ -3,7 +3,7 @@
 Extensão Chrome que conecta o **Civilium** ao portal da Receita Federal para consultas em lote.
 
 **Versão:** {{VERSION}}  
-**Site:** https://civilium-pro-web.vercel.app
+**Site:** https://civiliumpro.vercel.app
 
 ---
 
@@ -55,7 +55,7 @@ Clique no ícone de quebra-cabeça na barra do Chrome e fixe **Civilium Bridge**
 
 ## Como usar
 
-1. Acesse https://civilium-pro-web.vercel.app
+1. Acesse https://civiliumpro.vercel.app
 2. Envie ou abra um lote de consultas
 3. Clique em **Iniciar verificação em lote** ou **Abrir portal**
 4. O Chrome abrirá o portal da Receita Federal
@@ -82,7 +82,7 @@ Se a atualização não funcionar, remova a extensão e repita a instalação co
 
 - Recarregue a extensão em `chrome://extensions`
 - Feche e abra novamente a aba do Civilium
-- Confirme que está em https://civilium-pro-web.vercel.app (não outro endereço)
+- Confirme que está em https://civiliumpro.vercel.app (não outro endereço)
 
 ### O resultado não volta após o CAPTCHA
 

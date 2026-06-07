@@ -101,7 +101,7 @@ CRON_SECRET=cron_secret
   ],
   "host_permissions": [
     "https://servicos.receita.fazenda.gov.br/*",
-    "https://civilium-pro-web.vercel.app/*"
+    "https://civiliumpro.vercel.app/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -251,7 +251,7 @@ export function BotaoAbrirPortal({
 'use strict';
 
 const API =
-  'https://civilium-pro-web.vercel.app/api/resultado-externo';
+  'https://civiliumpro.vercel.app/api/resultado-externo';
 
 const WEBHOOK_SECRET =
   'SUPER_SECRET_AQUI';
