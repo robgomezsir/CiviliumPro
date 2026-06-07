@@ -2,6 +2,16 @@
 
 importScripts("config.js");
 
+if (
+  typeof CIVILIUM_CONFIG === "undefined" ||
+  !CIVILIUM_CONFIG.API_BASE ||
+  !CIVILIUM_CONFIG.WEBHOOK_SECRET
+) {
+  throw new Error(
+    "[Civilium Bridge] config.js inválido. Copie config.example.js e configure WEBHOOK_SECRET.",
+  );
+}
+
 const API = `${CIVILIUM_CONFIG.API_BASE}/api/resultado-externo`;
 const API_PROXIMA = `${CIVILIUM_CONFIG.API_BASE}/api/proxima-consulta`;
 const WEBHOOK_SECRET = CIVILIUM_CONFIG.WEBHOOK_SECRET;
@@ -153,7 +163,16 @@ chrome.runtime.onStartup.addListener(async () => {
   }
 });
 
+chrome.runtime.onInstalled.addListener(() => {
+  console.info("[Civilium Bridge] extensão pronta");
+});
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!msg?.tipo) {
+    sendResponse({ ok: false, erro: "mensagem_invalida" });
+    return true;
+  }
+
   if (msg.tipo === "healthcheck") {
     sendResponse({ ok: true });
     return true;
@@ -233,7 +252,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
-  return false;
+  sendResponse({ ok: false, erro: "tipo_desconhecido" });
+  return true;
 });
 
 chrome.tabs.onRemoved.addListener(async (tabId) => {

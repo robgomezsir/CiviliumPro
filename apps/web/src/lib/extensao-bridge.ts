@@ -37,13 +37,21 @@ function enviarMensagemExtensao<T extends BridgeResponse>(
   });
 }
 
+async function aguardar(ms: number) {
+  await new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
 export async function pingExtensao(): Promise<boolean> {
-  try {
-    const res = await enviarMensagemExtensao("healthcheck");
-    return Boolean(res.ok);
-  } catch {
-    return false;
+  for (let tentativa = 0; tentativa < 4; tentativa += 1) {
+    try {
+      const res = await enviarMensagemExtensao("healthcheck");
+      if (res.ok) return true;
+    } catch {
+      if (tentativa < 3) await aguardar(400 * (tentativa + 1));
+    }
   }
+
+  return false;
 }
 
 export async function registrarConsultaExtensao(

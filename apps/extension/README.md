@@ -45,6 +45,7 @@ Em `chrome://extensions`, clique em **Recarregar** na extensão Civilium Bridge.
 
 ## Solução de problemas
 
+- **Erros em `bridge.js` / "Receiving end does not exist":** recarregue a extensão em `chrome://extensions`, recarregue a aba do Civilium e confira se o service worker está ativo (link "service worker" na extensão).
 - **Resultado não volta ao Civilium:** recarregue a extensão, confira se `WEBHOOK_SECRET` em `config.js` é igual ao `CIVILIUM_WEBHOOK_SECRET` na Vercel, e mantenha a aba da Receita aberta até aparecer o comprovante.
 - **Consulta travada em "Em andamento":** clique em **Abrir portal novamente** ou recarregue a página do lote (expira após 5 minutos).
 
