@@ -30,7 +30,7 @@ export function gerarCsvResultados(linhas: LinhaExportacao[]): string {
   const header = [
     "Nome informado",
     "CPF",
-    "Nome",
+    "Nome na Receita",
     "Situação Cadastral na Receita",
     "Resultado",
     "Detalhe do erro",

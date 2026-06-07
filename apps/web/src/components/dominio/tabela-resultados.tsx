@@ -85,7 +85,7 @@ export function TabelaResultados({
             <tr>
               <th className="px-4 py-3 font-medium">Nome informado</th>
               <th className="px-4 py-3 font-medium">CPF</th>
-              <th className="px-4 py-3 font-medium">Nome</th>
+              <th className="px-4 py-3 font-medium">Nome na Receita</th>
               <th className="px-4 py-3 font-medium">Situação Cadastral na Receita</th>
               <th className="px-4 py-3 font-medium">Resultado</th>
               <th className="px-4 py-3 font-medium">Detalhe</th>
