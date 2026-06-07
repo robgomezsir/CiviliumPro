@@ -70,6 +70,7 @@ function pareceCabecalho(cols: string[]) {
 
 function parseTextoColado(texto: string): LinhaBruta[] {
   const linhasTexto = texto.trim().split(/\r?\n/).filter((l) => l.trim());
+  let cabecalhoIgnorado = false;
 
   return linhasTexto
     .map((linha) => {
@@ -81,12 +82,21 @@ function parseTextoColado(texto: string): LinhaBruta[] {
         dataNascimento: normalizarData(cols[2] ?? ""),
       };
     })
-    .filter((linha, index, arr) => {
-      if (index === 0 && pareceCabecalho([linha.nome, linha.cpf, linha.dataNascimento])) {
+    .filter((linha) => {
+      if (
+        !cabecalhoIgnorado &&
+        pareceCabecalho([linha.nome, linha.cpf, linha.dataNascimento])
+      ) {
+        cabecalhoIgnorado = true;
         return false;
       }
-      return arr.length > 1 || linha.nome || linha.cpf || linha.dataNascimento;
+      return Boolean(linha.nome || linha.cpf || linha.dataNascimento);
     });
+}
+
+function mesclarColagem(atual: LinhaBruta[], coladas: LinhaBruta[]): LinhaBruta[] {
+  const existentes = atual.filter(linhaPreenchida);
+  return [...existentes, ...coladas, ...criarLinhasVazias(2)];
 }
 
 function linhaPreenchida(linha: LinhaBruta) {
@@ -139,11 +149,7 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
     setNomeArquivo(null);
   };
 
-  const handlePaste = useCallback((event: React.ClipboardEvent) => {
-    const texto = event.clipboardData.getData("text/plain");
-    if (!texto.trim()) return;
-
-    event.preventDefault();
+  const aplicarColagem = useCallback((texto: string) => {
     const coladas = parseTextoColado(texto);
 
     if (!coladas.length) {
@@ -151,17 +157,38 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
       return;
     }
 
-    if (coladas.length > MAX_PESSOAS_POR_LOTE) {
-      toast.error(
-        `Máximo de ${MAX_PESSOAS_POR_LOTE} pessoas por pesquisa. Divida em lotes menores.`,
-      );
-      return;
-    }
+    setLinhas((atual) => {
+      const existentes = atual.filter(linhaPreenchida);
+      const total = existentes.length + coladas.length;
 
-    setLinhas([...coladas, ...criarLinhasVazias(2)]);
+      if (total > MAX_PESSOAS_POR_LOTE) {
+        toast.error(
+          `Máximo de ${MAX_PESSOAS_POR_LOTE} pessoas por pesquisa. Você já tem ${existentes.length} e tentou colar ${coladas.length}.`,
+        );
+        return atual;
+      }
+
+      toast.success(
+        coladas.length === 1
+          ? "1 linha adicionada"
+          : `${coladas.length} linhas adicionadas`,
+      );
+      return mesclarColagem(atual, coladas);
+    });
     setNomeArquivo(null);
-    toast.success(`${coladas.length} linhas coladas do Excel`);
   }, []);
+
+  const handlePaste = useCallback(
+    (event: React.ClipboardEvent) => {
+      const texto = event.clipboardData.getData("text/plain");
+      if (!texto.trim()) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      aplicarColagem(texto);
+    },
+    [aplicarColagem],
+  );
 
   const processarArquivo = useCallback((file: File) => {
     if (!file.name.toLowerCase().endsWith(".csv")) {
@@ -203,7 +230,19 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
           });
         }
 
-        setLinhas([...importadas, ...criarLinhasVazias(2)]);
+        setLinhas((atual) => {
+          const existentes = atual.filter(linhaPreenchida);
+          const total = existentes.length + importadas.length;
+
+          if (total > MAX_PESSOAS_POR_LOTE) {
+            toast.error(
+              `Máximo de ${MAX_PESSOAS_POR_LOTE} pessoas por pesquisa.`,
+            );
+            return atual;
+          }
+
+          return mesclarColagem(atual, importadas);
+        });
         setNomeArquivo(file.name);
         toast.success(`${importadas.length} pessoas importadas do CSV`);
       },
@@ -271,8 +310,9 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
       <CardContent className="space-y-4">
         <div
           ref={tabelaRef}
-          onPaste={handlePaste}
-          className="overflow-x-auto rounded-lg border border-slate-200 focus-within:ring-2 focus-within:ring-blue-200"
+          tabIndex={0}
+          onPasteCapture={handlePaste}
+          className="overflow-x-auto rounded-lg border border-slate-200 outline-none focus-within:ring-2 focus-within:ring-blue-200 focus:ring-2 focus:ring-blue-200"
         >
           <table className="min-w-full text-sm">
             <thead className="bg-slate-50 text-left text-slate-600">
@@ -324,8 +364,9 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
 
         <p className="flex items-center gap-2 text-sm text-slate-600">
           <IconClipboard className="h-4 w-4 shrink-0" />
-          Clique na tabela e pressione <strong>Ctrl+V</strong> para colar linhas
-          copiadas do Excel. Máximo de {MAX_PESSOAS_POR_LOTE} pessoas.
+          Cole quantas vezes quiser com <strong>Ctrl+V</strong> — cada colagem
+          adiciona linhas ao final da lista. Máximo de {MAX_PESSOAS_POR_LOTE}{" "}
+          pessoas.
         </p>
 
         <div className="flex flex-wrap gap-2">
