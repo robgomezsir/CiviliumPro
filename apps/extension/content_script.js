@@ -206,9 +206,7 @@ function extrairCampoPorRotulo(spans, padraoRotulo) {
 
 function extrairDadosComprovante() {
   const spans = document.querySelectorAll("span.clConteudoDados");
-  const valores = [...spans]
-    .map((span) => extrairValorSpan(span))
-    .filter(Boolean);
+  const valores = [...spans].map((span) => extrairValorSpan(span));
 
   const nomeDireto = document.querySelector("#NomeCompletoPF")?.textContent?.trim();
   const situacaoDireta = document
@@ -218,17 +216,16 @@ function extrairDadosComprovante() {
   const nome =
     nomeDireto ||
     extrairCampoPorRotulo(spans, /^nome\b/i) ||
-    (valores.length >= 2 ? valores[1] : null);
+    valores[1] ||
+    null;
 
   const situacaoCadastral =
     situacaoDireta ||
-    extrairCampoPorRotulo(
-      spans,
-      /situa[cç][aã]o\s*cadastral|^cadastral\b/i,
-    ) ||
-    (valores.length >= 4 ? valores[3] : null);
+    extrairCampoPorRotulo(spans, /situa[cç][aã]o\s*cadastral/i) ||
+    valores[3] ||
+    null;
 
-  return { nome, situacaoCadastral };
+  return { nome, situacaoCadastral, comprovanteCompleto: spans.length >= 4 };
 }
 
 function detectarResultado() {
@@ -237,16 +234,19 @@ function detectarResultado() {
   const erro = detectarErroPortal(texto);
   if (erro) return erro;
 
-  const { nome, situacaoCadastral } = extrairDadosComprovante();
-  if (nome) {
-    return {
-      status: "SUCESSO",
-      nomeReceita: nome,
-      situacaoCadastral,
-    };
-  }
+  const { nome, situacaoCadastral, comprovanteCompleto } =
+    extrairDadosComprovante();
 
-  return null;
+  if (!nome) return null;
+
+  // Aguarda o comprovante inteiro antes de enviar (nome pode aparecer antes da situação)
+  if (!situacaoCadastral && !comprovanteCompleto) return null;
+
+  return {
+    status: "SUCESSO",
+    nomeReceita: nome,
+    situacaoCadastral,
+  };
 }
 
 function enviarResultado(resultado) {

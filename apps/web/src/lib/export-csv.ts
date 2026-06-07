@@ -45,9 +45,11 @@ export function gerarCsvResultados(linhas: LinhaExportacao[]): string {
     encurtarMensagemErroReceita(l.erroMensagem) ?? "",
     l.consultadaEm ? l.consultadaEm.toISOString() : "",
   ]);
-  return [header, ...rows]
+  const csv = [header, ...rows]
     .map((row) =>
       row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
     )
     .join("\n");
+
+  return `\uFEFF${csv}`;
 }

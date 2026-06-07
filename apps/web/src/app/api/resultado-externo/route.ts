@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
   const resolvido = resolverStatusConsulta(consulta.nomeInformado, {
     status: body.status,
     nomeReceita: body.nomeReceita,
+    situacaoCadastral: body.situacaoCadastral,
     mensagemErro: body.mensagemErro,
   });
 
