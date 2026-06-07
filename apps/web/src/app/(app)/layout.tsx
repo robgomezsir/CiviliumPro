@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IconChartBar, IconFileSpreadsheet } from "@tabler/icons-react";
+import { IconChartBar, IconSearch } from "@tabler/icons-react";
 import { StatusExtensao } from "@/components/dominio/status-extensao";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -24,8 +24,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 href="/lote"
                 className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
               >
-                <IconFileSpreadsheet className="h-4 w-4" />
-                Nova planilha
+                <IconSearch className="h-4 w-4" />
+                Nova pesquisa
               </Link>
             </nav>
           </div>

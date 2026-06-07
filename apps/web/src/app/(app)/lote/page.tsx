@@ -26,12 +26,12 @@ export default function LotePage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="mx-auto max-w-4xl space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Nova planilha</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Nova pesquisa</h1>
         <p className="text-slate-600">
-          Envie um CSV com nome, CPF e data de nascimento para iniciar as
-          consultas na Receita Federal.
+          Cole a lista do Excel na tabela abaixo ou importe um CSV para iniciar
+          as consultas na Receita Federal.
         </p>
       </div>
       <UploadPlanilha
