@@ -11,6 +11,7 @@ type ResultadoBody = {
   correlationId?: string;
   status: string;
   nomeReceita?: string;
+  situacaoCadastral?: string;
   mensagemErro?: string;
 };
 
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest) {
       .set({
         status: resolvido.status,
         nomeNaReceita: resolvido.nomeNaReceita,
+        situacaoCadastral: resolvido.situacaoCadastral,
         erroMensagem: resolvido.erroMensagem,
         resultadoRecebidoEm: agora,
         consultadaEm: agora,

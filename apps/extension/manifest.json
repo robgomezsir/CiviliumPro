@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "civilium bridge",
   "short_name": "civilium",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Conecta o civilium ao portal da Receita Federal para consultas cadastrais com resolução manual de CAPTCHA.",
   "homepage_url": "https://civiliumpro.vercel.app",
   "permissions": ["tabs", "storage"],

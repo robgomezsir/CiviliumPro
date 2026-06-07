@@ -75,6 +75,7 @@ export function ResultadoClient({ loteId }: Props) {
         nomeInformado: c.nomeInformado,
         cpf: c.cpf,
         nomeNaReceita: c.nomeNaReceita,
+        situacaoCadastral: c.situacaoCadastral,
         status: c.status,
         erroMensagem: c.erroMensagem,
         consultadaEm: c.consultadaEm,

@@ -184,40 +184,51 @@ function detectarErroPortal(textoOriginal) {
   return null;
 }
 
-function extrairNomeReceita() {
-  const direto = document.querySelector("#NomeCompletoPF")?.textContent?.trim();
-  if (direto) return direto;
+function extrairValorSpan(span) {
+  const bold = span.querySelector("b")?.textContent?.trim();
+  if (bold) return bold;
 
-  const spans = document.querySelectorAll("span.clConteudoDados");
+  const texto = normalizarTexto(span.textContent);
+  if (!texto.includes(":")) return texto || null;
+  return texto.split(":").slice(1).join(":").trim() || null;
+}
+
+function extrairCampoPorRotulo(spans, padraoRotulo) {
   for (const span of spans) {
-    const texto = span.textContent?.replace(/\s+/g, " ").trim() ?? "";
+    const texto = normalizarTexto(span.textContent);
     if (!texto) continue;
-
-    if (/^nome\b/i.test(texto) && texto.includes(":")) {
-      return texto.split(":").slice(1).join(":").trim();
+    if (padraoRotulo.test(texto)) {
+      return extrairValorSpan(span);
     }
   }
-
-  if (spans.length >= 2) {
-    const segundo = spans[1].textContent?.replace(/\s+/g, " ").trim() ?? "";
-    if (segundo.includes(":")) {
-      const [rotulo, ...valor] = segundo.split(":");
-      if (/nome/i.test(rotulo)) {
-        return valor.join(":").trim();
-      }
-    }
-  }
-
-  const container = document.querySelector("#clContenedorDados .clConteudoDados");
-  const textoContainer = container?.textContent?.replace(/\s+/g, " ").trim();
-  if (textoContainer?.includes(":")) {
-    const [rotulo, ...valor] = textoContainer.split(":");
-    if (/nome/i.test(rotulo)) {
-      return valor.join(":").trim();
-    }
-  }
-
   return null;
+}
+
+function extrairDadosComprovante() {
+  const spans = document.querySelectorAll("span.clConteudoDados");
+  const valores = [...spans]
+    .map((span) => extrairValorSpan(span))
+    .filter(Boolean);
+
+  const nomeDireto = document.querySelector("#NomeCompletoPF")?.textContent?.trim();
+  const situacaoDireta = document
+    .querySelector("#SituacaoCadastralPF")
+    ?.textContent?.trim();
+
+  const nome =
+    nomeDireto ||
+    extrairCampoPorRotulo(spans, /^nome\b/i) ||
+    (valores.length >= 2 ? valores[1] : null);
+
+  const situacaoCadastral =
+    situacaoDireta ||
+    extrairCampoPorRotulo(
+      spans,
+      /situa[cç][aã]o\s*cadastral|^cadastral\b/i,
+    ) ||
+    (valores.length >= 4 ? valores[3] : null);
+
+  return { nome, situacaoCadastral };
 }
 
 function detectarResultado() {
@@ -226,9 +237,13 @@ function detectarResultado() {
   const erro = detectarErroPortal(texto);
   if (erro) return erro;
 
-  const nome = extrairNomeReceita();
+  const { nome, situacaoCadastral } = extrairDadosComprovante();
   if (nome) {
-    return { status: "SUCESSO", nomeReceita: nome };
+    return {
+      status: "SUCESSO",
+      nomeReceita: nome,
+      situacaoCadastral,
+    };
   }
 
   return null;

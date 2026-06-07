@@ -59,6 +59,7 @@ export async function prepararConsulta(
         consultadaEm: null,
         erroMensagem: null,
         nomeNaReceita: null,
+        situacaoCadastral: null,
       })
       .where(eq(consultas.id, consultaId));
   });

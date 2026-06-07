@@ -18,6 +18,7 @@ type ConsultaRow = {
   nomeInformado: string;
   cpf: string;
   nomeNaReceita: string | null;
+  situacaoCadastral: string | null;
   status: StatusConsulta;
   erroMensagem: string | null;
 };
@@ -57,6 +58,7 @@ export function TabelaResultados({
         (c) =>
           c.nomeInformado.toLowerCase().includes(termo) ||
           (c.nomeNaReceita?.toLowerCase().includes(termo) ?? false) ||
+          (c.situacaoCadastral?.toLowerCase().includes(termo) ?? false) ||
           (c.erroMensagem?.toLowerCase().includes(termo) ?? false),
       );
     }
@@ -94,6 +96,7 @@ export function TabelaResultados({
                 <td className="px-4 py-3">{c.nomeInformado}</td>
                 <td className="px-4 py-3">{formatarCpf(c.cpf)}</td>
                 <td className="px-4 py-3">{c.nomeNaReceita ?? "—"}</td>
+                <td className="px-4 py-3">{c.situacaoCadastral ?? "—"}</td>
                 <td className="px-4 py-3">
                   <ResultadoBadge
                     status={c.status}

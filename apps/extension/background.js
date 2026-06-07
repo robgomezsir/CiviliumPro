@@ -275,6 +275,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             correlationId: consulta.correlationId,
             status: msg.status,
             nomeReceita: msg.nomeReceita,
+            situacaoCadastral: msg.situacaoCadastral,
             mensagemErro: msg.mensagemErro,
           });
 

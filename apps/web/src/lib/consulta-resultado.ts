@@ -4,6 +4,7 @@ import type { StatusConsulta } from "@/db/schema/consulta";
 type ResultadoExternoBody = {
   status: string;
   nomeReceita?: string | null;
+  situacaoCadastral?: string | null;
   mensagemErro?: string | null;
 };
 
@@ -13,6 +14,7 @@ export function resolverStatusConsulta(
 ): {
   status: StatusConsulta;
   nomeNaReceita: string | null;
+  situacaoCadastral: string | null;
   erroMensagem: string | null;
 } {
   if (body.status === "SUCESSO" && body.nomeReceita) {
@@ -20,6 +22,7 @@ export function resolverStatusConsulta(
     return {
       status: confere ? "CONFERE" : "NAO_CONFERE",
       nomeNaReceita: body.nomeReceita,
+      situacaoCadastral: body.situacaoCadastral ?? null,
       erroMensagem: null,
     };
   }
@@ -37,6 +40,7 @@ export function resolverStatusConsulta(
     return {
       status: statusTerminal,
       nomeNaReceita: body.nomeReceita ?? null,
+      situacaoCadastral: body.situacaoCadastral ?? null,
       erroMensagem: encurtarMensagemErroReceita(body.mensagemErro),
     };
   }
@@ -44,6 +48,7 @@ export function resolverStatusConsulta(
   return {
     status: "ERRO",
     nomeNaReceita: null,
+    situacaoCadastral: null,
     erroMensagem:
       encurtarMensagemErroReceita(body.mensagemErro) ??
       "Resultado inválido recebido da extensão",

@@ -20,6 +20,7 @@ type LinhaExportacao = {
   nomeInformado: string;
   cpf: string;
   nomeNaReceita: string | null;
+  situacaoCadastral: string | null;
   status: string;
   erroMensagem?: string | null;
   consultadaEm: Date | null;
@@ -29,7 +30,8 @@ export function gerarCsvResultados(linhas: LinhaExportacao[]): string {
   const header = [
     "Nome informado",
     "CPF",
-    "Nome na Receita",
+    "Nome",
+    "Situação Cadastral na Receita",
     "Resultado",
     "Detalhe do erro",
     "Consultada em",
@@ -38,6 +40,7 @@ export function gerarCsvResultados(linhas: LinhaExportacao[]): string {
     l.nomeInformado,
     formatarCpf(l.cpf),
     l.nomeNaReceita ?? "",
+    l.situacaoCadastral ?? "",
     labelsStatus[l.status as StatusConsulta] ?? l.status,
     encurtarMensagemErroReceita(l.erroMensagem) ?? "",
     l.consultadaEm ? l.consultadaEm.toISOString() : "",

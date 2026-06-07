@@ -30,6 +30,7 @@ export const consultas = pgTable("consultas", {
   cpf: text("cpf").notNull(),
   dataNascimento: text("data_nascimento").notNull(),
   nomeNaReceita: text("nome_na_receita"),
+  situacaoCadastral: text("situacao_cadastral"),
   status: statusConsultaEnum("status").default("PENDENTE").notNull(),
   erroMensagem: text("erro_mensagem"),
   tokenConsulta: text("token_consulta"),
