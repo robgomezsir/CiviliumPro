@@ -9,9 +9,9 @@ import {
   IconPlayerPlay,
   IconArrowRight,
 } from "@tabler/icons-react";
+import { enviarCaptcha } from "@/actions/consulta/enviar-captcha.action";
 import { iniciarConsulta } from "@/actions/consulta/iniciar-consulta.action";
 import { pausarLote } from "@/actions/consulta/pausar-lote.action";
-import { enviarCaptchaAutomacao } from "@/lib/automacao-client";
 import { CaptchaViewer } from "@/components/dominio/captcha-viewer";
 import { ProgressoLote } from "@/components/dominio/progresso-lote";
 import { TabelaResultados } from "@/components/dominio/tabela-resultados";
@@ -120,10 +120,20 @@ export function LoteConsultaClient({ loteId }: Props) {
 
     setIsProcessando(true);
     try {
-      const resultado = await enviarCaptchaAutomacao(loteId, {
+      const captchaResult = await enviarCaptcha({
+        loteId,
         consultaId: consultaAtivaId,
         captcha,
       });
+
+      if (captchaResult?.serverError) {
+        throw new Error(captchaResult.serverError);
+      }
+
+      const resultado = captchaResult?.data;
+      if (!resultado) {
+        throw new Error("Não foi possível confirmar o CAPTCHA");
+      }
 
       await registrarResultado.mutateAsync({
         consultaId: consultaAtivaId,

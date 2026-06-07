@@ -1,5 +1,11 @@
 {
   "buildCommand": "cd ../.. && pnpm --filter @civilium/web build",
   "installCommand": "cd ../.. && pnpm install",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "functions": {
+    "src/app/**": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  }
 }

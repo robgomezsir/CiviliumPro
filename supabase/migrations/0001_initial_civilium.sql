@@ -60,3 +60,18 @@ CREATE TABLE IF NOT EXISTS auditoria_eventos (
 CREATE INDEX IF NOT EXISTS consultas_lote_id_idx ON consultas(lote_id);
 CREATE INDEX IF NOT EXISTS consultas_status_idx ON consultas(status);
 CREATE INDEX IF NOT EXISTS lotes_deleted_at_idx ON lotes(deleted_at);
+
+CREATE TABLE IF NOT EXISTS sessoes_automacao (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  lote_id uuid NOT NULL REFERENCES lotes(id),
+  consulta_id uuid NOT NULL UNIQUE REFERENCES consultas(id),
+  storage_state jsonb NOT NULL,
+  cpf text NOT NULL,
+  data_nascimento text NOT NULL,
+  nome_informado text,
+  expires_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS sessoes_automacao_lote_id_idx ON sessoes_automacao(lote_id);
+CREATE INDEX IF NOT EXISTS sessoes_automacao_expires_at_idx ON sessoes_automacao(expires_at);

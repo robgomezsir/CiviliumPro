@@ -28,7 +28,7 @@ O Civilium automatiza a consulta de dados cadastrais de pessoas físicas no port
 
 | ID | Decisão |
 |----|---------|
-| DP-001 | Playwright em microserviço dedicado (Railway) com sessão persistente por lote |
+| DP-001 | Playwright integrado ao Next.js na Vercel (`@sparticuz/chromium`) com estado de sessão no Supabase |
 | DP-002 | MVP sem autenticação (single-user) |
 | DP-003 | Streaming do CAPTCHA via SSE com screenshot |
 | DP-004 | Limite de 100 pessoas por lote |

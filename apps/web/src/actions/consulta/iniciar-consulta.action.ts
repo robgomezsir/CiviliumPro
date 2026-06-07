@@ -7,7 +7,7 @@ import { consultas } from "@/db/schema";
 import {
   abrirSessaoAutomacao,
   iniciarConsultaAutomacao,
-} from "@/lib/automacao-client";
+} from "@/lib/automacao/sessao";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { actionClient } from "@/lib/safe-action";
 
@@ -48,6 +48,7 @@ export const iniciarConsulta = actionClient
       .where(eq(consultas.id, parsedInput.consultaId));
 
     const resultado = await iniciarConsultaAutomacao(parsedInput.loteId, {
+      loteId: parsedInput.loteId,
       cpf: consulta.cpf,
       dataNascimento: consulta.dataNascimento,
       consultaId: consulta.id,

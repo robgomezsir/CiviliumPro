@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter @civilium/web dev",
-    "dev:automacao": "pnpm --filter @civilium/automacao-receita dev",
+    "dev:automacao": "echo \"Automacao integrada ao apps/web. Use: pnpm dev\"",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "db:push": "pnpm --filter @civilium/web db:push"

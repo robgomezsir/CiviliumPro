@@ -23,6 +23,5 @@
 
 ## Arquitetura MVP
 
-- **Frontend/API:** Next.js 16 na Vercel
-- **Automação:** microserviço Hono + Playwright no Railway
+- **App:** Next.js 16 na Vercel (frontend + Playwright serverless)
 - **Banco:** Supabase PostgreSQL via Drizzle

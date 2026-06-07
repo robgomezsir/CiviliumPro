@@ -4,7 +4,7 @@ import { concluirLoteSchema } from "@civilium/shared";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { auditoriaEventos, lotes } from "@/db/schema";
-import { fecharSessaoAutomacao } from "@/lib/automacao-client";
+import { fecharSessaoAutomacao } from "@/lib/automacao/sessao";
 import { actionClient } from "@/lib/safe-action";
 
 export const concluirLote = actionClient

@@ -4,39 +4,36 @@ Plataforma para verificação cadastral em lote no portal da Receita Federal do 
 
 ## Estrutura
 
-- `apps/web` — Next.js 16 (frontend + API)
-- `services/automacao-receita` — microserviço Playwright (Railway)
+- `apps/web` — Next.js 16 (frontend + Playwright via `@sparticuz/chromium` na Vercel)
 - `packages/shared` — schemas Zod e utilitários compartilhados
+- `services/automacao-receita` — legado local (opcional; automação roda no próprio Next.js)
 
 ## Desenvolvimento local
 
 ```bash
 pnpm install
-cp .env.example apps/web/.env.local
-cp .env.example services/automacao-receita/.env
+cp apps/web/.env.local.example apps/web/.env.local
 ```
 
-### Supabase (projeto vinculado no MCP)
-
-- **Project ref:** `xfoizpniywllpgyycska`
-- **MCP Cursor:** configurado em `~/.cursor/mcp.json` (requer autenticação OAuth)
-- **Dashboard:** https://supabase.com/dashboard/project/xfoizpniywllpgyycska
-
-1. Aprove a autenticação do MCP **Supabase** no Cursor (popup OAuth), ou
-2. Copie a senha do banco em *Settings → Database* e substitua `[SUA-SENHA]` em `apps/web/.env.local`
+Configure `DATABASE_URL` e `DIRECT_URL` com seu projeto Supabase.
 
 ```bash
 pnpm db:push
-# ou
-./scripts/setup-supabase.ps1
-pnpm dev:automacao
 pnpm dev
 ```
 
-Para testar sem o portal real, use `RECEITA_MOCK=true` no serviço de automação. O CAPTCHA mock é `ABC123`.
+Para testar sem o portal real, use `RECEITA_MOCK=true` em `apps/web/.env.local`. O CAPTCHA mock é `ABC123`.
 
 ## Deploy
 
-- **Web:** Vercel (`apps/web`)
-- **Automação:** Railway (`services/automacao-receita`)
+- **App:** Vercel (`apps/web`) — web + automação Playwright na mesma aplicação
 - **Banco:** Supabase + `pnpm db:push`
+
+### Variáveis na Vercel
+
+- `DATABASE_URL` (pooler porta 6543)
+- `DIRECT_URL`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `RECEITA_MOCK=false` (produção)
