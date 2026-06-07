@@ -50,7 +50,7 @@ pnpm dev
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role |
 | `CIVILIUM_WEBHOOK_SECRET` | Segredo do webhook (igual ao `config.js` da extensão) |
 | `CRON_SECRET` | Autenticação do cron de expiração |
-3. O cron em `vercel.json` expira consultas inativas a cada 5 minutos
+3. Consultas inativas expiram automaticamente ao carregar o lote (plano Hobby não suporta cron frequente na Vercel). Opcional: agende `GET /api/expirar-consultas` via [cron-job.org](https://cron-job.org) com header `Authorization: Bearer CRON_SECRET`
 
 ## Fluxo de consulta
 
