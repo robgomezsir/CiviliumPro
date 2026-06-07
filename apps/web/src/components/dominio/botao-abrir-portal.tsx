@@ -15,6 +15,7 @@ type Props = {
   loteId: string;
   consultaId: string;
   disabled?: boolean;
+  reabrir?: boolean;
   onAberto?: () => void;
 };
 
@@ -22,6 +23,7 @@ export function BotaoAbrirPortal({
   loteId,
   consultaId,
   disabled,
+  reabrir = false,
   onAberto,
 }: Props) {
   const [abrindo, setAbrindo] = useState(false);
@@ -67,7 +69,11 @@ export function BotaoAbrirPortal({
   return (
     <Button size="lg" className="w-full" onClick={abrir} disabled={disabled || abrindo}>
       <IconExternalLink className="h-5 w-5" />
-      {abrindo ? "Abrindo portal..." : "Abrir portal da Receita"}
+      {abrindo
+        ? "Abrindo portal..."
+        : reabrir
+          ? "Abrir portal novamente"
+          : "Abrir portal da Receita"}
     </Button>
   );
 }

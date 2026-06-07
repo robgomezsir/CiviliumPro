@@ -83,6 +83,7 @@ export function LoteConsultaClient({ loteId }: Props) {
 
   const todasVerificadas = stats.pendentes === 0;
   const aguardandoResultado = consultaAtual?.status === "EM_ANDAMENTO";
+  const podeAbrirPortal = consultaAtual && !pausado;
 
   return (
     <div className="space-y-6">
@@ -176,7 +177,8 @@ export function LoteConsultaClient({ loteId }: Props) {
             <BotaoAbrirPortal
               loteId={loteId}
               consultaId={consultaAtual.id}
-              disabled={aguardandoResultado}
+              disabled={!podeAbrirPortal}
+              reabrir={aguardandoResultado}
               onAberto={() => setPessoaIndex(consultaAtual.ordemNaLista)}
             />
           </CardContent>

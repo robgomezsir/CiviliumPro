@@ -22,6 +22,15 @@ Ou execute na raiz do monorepo: `pnpm setup:secrets`
 
 A extensão injeta `bridge.js` nas páginas do Civilium para comunicação segura com o service worker (sem expor o ID da extensão).
 
+## Atualizar após mudanças
+
+Em `chrome://extensions`, clique em **Recarregar** na extensão Civilium Bridge.
+
+## Solução de problemas
+
+- **Resultado não volta ao Civilium:** recarregue a extensão, confira se `WEBHOOK_SECRET` em `config.js` é igual ao `CIVILIUM_WEBHOOK_SECRET` na Vercel, e mantenha a aba da Receita aberta até aparecer o comprovante.
+- **Consulta travada em "Em andamento":** clique em **Abrir portal novamente** ou recarregue a página do lote (expira após 5 minutos).
+
 ## Fluxo
 
 1. Usuário clica **Abrir portal da Receita** no Civilium
