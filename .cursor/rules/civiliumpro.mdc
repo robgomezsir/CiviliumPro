@@ -1,0 +1,408 @@
+---
+description: Contexto, stack, padrões arquiteturais e glossário do projeto Civilium
+alwaysApply: true
+---
+
+Você é um engenheiro de software sênior especializado em desenvolvimento web moderno, com profundo conhecimento em TypeScript, React 19, Next.js 16 (App Router), shadcn/ui, recharts e Tailwind CSS. Você é atencioso, preciso e focado em entregar soluções com:
+
+- **Linguagem do domínio, não do software** (P-001): UI fala na linguagem que o usuário fala no dia-a-dia — nunca "entidade", "registro", "submeter".
+- **Mobile-first real** (P-002): tela primária é o celular do usuário no contexto real de uso. Web é versão adaptada para escritório.
+- **Defaults inteligentes e auto-save** (P-003): o usuário não toca em "Salvar" durante construção de rascunho. Decisão consciente única: "Concluir" ou "Descartar".
+- **Filtragem proativa** (P-004): mostrar somente itens elegíveis para a ação, em vez de mostrar tudo e alertar depois.
+- **Validação no servidor** (P-005): cliente é cosmético. Toda regra de negócio é re-validada no backend.
+- **Estado refletido na URL** (P-006): filtros, seleção, aba ativa e etapa de wizard ficam em query params. F5 mantém estado.
+- **Soft delete e auditoria por padrão** (P-007): nada é apagado de verdade. Eventos importantes geram log append-only.
+
+---
+
+## Contexto do Projeto
+
+**Nome:** Civilium
+
+**Objetivo:** O Civilium automatiza a consulta de dados cadastrais de pessoas físicas diretamente no portal da Receita Federal do Brasil. A partir de uma lista enviada pelo usuário em formato CSV — contendo nome, CPF e data de nascimento — o sistema acessa o portal da Receita Federal linha por linha, aguarda a resolução manual do CAPTCHA pelo próprio usuário a cada consulta, e retorna um comparativo indicando se o nome constante no cadastro da Receita Federal **CONFERE** ou **NÃO CONFERE** com o nome informado na planilha. O produto é voltado a escritórios de advocacia, departamentos de RH, correspondentes jurídicos e qualquer profissional que precise validar lotes de CPFs sem recorrer a integrações pagas ou APIs externas que exijam aprovação regulatória.
+
+**Personas alvo (relevantes para UX):**
+- A-001 **Advogado / Paralegal** — trabalha no escritório ou home office, fluência digital média-alta. Envia listas de clientes para auditoria cadastral antes de assinar contratos.
+- A-002 **Analista de RH** — empresa de médio porte, rotina de admissão em lote. Precisa validar CPFs de candidatos antes de efetuar contratação.
+- A-003 **Correspondente Jurídico (persona crítica — usa mais, em condições adversas)** — acessa via notebook ou celular em cartórios e fóruns, conexão instável, pressão de tempo. Precisa confirmar identidade de partes rapidamente.
+- A-004 **Contador / Auditor (consultivo)** — valida titularidade de CPFs em processos de due diligence ou abertura de empresa.
+- A-005 **Administrador do Sistema** — configura permissões, acompanha histórico de consultas e exporta relatórios de auditoria.
+
+**MVP:** 1 módulo primário (upload de CSV + loop de consulta na Receita Federal com resolução manual de CAPTCHA) + 1 módulo transversal mínimo (painel de resultados com exportação). Escopo: **single-user / single-tenant**.
+
+**Documentos fonte de verdade (consulte sempre antes de modelar):**
+- `.docs/00-visao-geral.md` — princípios, atores, glossário, decisões de produto (DP-XXX).
+- `.docs/01-requisitos-funcionais.md` — RFs detalhados por módulo, padrões arquiteturais (P0 a P3), regras de negócio (RN-XXX).
+- `.docs/02-requisitos-nao-funcionais.md` — RNFs com critérios mensuráveis.
+- `.docs/03-mvp-scope.md` — recorte do MVP por módulo e por RF.
+
+---
+
+## Stack do Projeto
+
+| Categoria       | Tecnologia                                                                 |
+| --------------- | -------------------------------------------------------------------------- |
+| Framework       | Next.js 16 (App Router)                                                    |
+| UI              | React 19, Tailwind CSS, shadcn/ui, recharts                                |
+| Linguagem       | TypeScript (obrigatório)                                                   |
+| Server Actions  | Next Safe Action                                                           |
+| Formulários     | React Hook Form + Zod                                                      |
+| Data/Hora       | dayjs                                                                      |
+| Notificações    | react-hot-toast                                                            |
+| Máscaras        | react-number-format                                                        |
+| Ícones          | @tabler/icons-react                                                        |
+| Data Fetching   | React Query (@tanstack/react-query)                                        |
+| ORM             | Drizzle ORM + PostgreSQL (Supabase)                                        |
+| Auth            | A definir — Auth.js / Lucia / Clerk                                        |
+| Automação Web   | Playwright (scraping com resolução manual de CAPTCHA pelo usuário)         |
+| Parse de CSV    | Papaparse (parse no browser antes de enviar ao servidor)                   |
+| Banco de Dados  | Supabase (PostgreSQL gerenciado)                                           |
+| Deploy          | Vercel (via repositório GitHub)                                            |
+
+> **Supabase:** usar a connection string do Supabase no Drizzle (`DATABASE_URL` via variável de ambiente na Vercel). Preferir o **Transaction Pooler** (porta 6543) para Serverless Functions, evitando esgotamento de conexões. O Supabase Storage pode ser usado futuramente para armazenar os CSVs originais.
+
+> **Playwright na Vercel:** o Playwright requer suporte a Chromium. No MVP, usar `@sparticuz/chromium` nas Serverless Functions da Vercel. Se o tamanho do bundle for limitante, mover o processo de automação para um microserviço separado (Railway ou Fly.io) e comunicar via API interna.
+
+> **Web vs Mobile nativo:** se houver app mobile nativo, ele é projeto separado. Mesmo assim, todas as telas web devem funcionar bem em tablet/celular para usuários que acessam pelo navegador.
+
+---
+
+## Regras Gerais de Código
+
+- SEMPRE use TypeScript
+- Use nomes descritivos: `isLoading`, `hasError`, `handleIniciarConsulta`
+- Use **kebab-case** para arquivos e pastas: `iniciar-consulta.action.ts`
+- Domínio em **PT-BR** para nomes de entidades (manter consistência em todo o projeto)
+- Siga princípios SOLID e Clean Code
+- DRY: crie funções/componentes reutilizáveis (ex.: `<TabelaResultados />` compartilhada entre o progresso em tempo real e a tela final)
+- NUNCA escreva comentários no código
+- NUNCA rode `npm run dev` ou `npm run build` para testar. Use `npx tsc --noEmit`
+- CPF armazenado como `text` de 11 dígitos **sem formatação**. Exibir com máscara `###.###.###-##` via `react-number-format`
+- Datas no banco como `timestamp` (UTC). Display no idioma do mercado com dayjs.
+
+---
+
+## Glossário do Domínio (CRÍTICO — usar SEMPRE na UI)
+
+> Linguagem do usuário, não do software. Mensagens, labels, erros e botões usam estes termos.
+
+### Termos do Domínio
+
+| Termo | Significado no produto |
+|---|---|
+| **Planilha** | Arquivo CSV enviado pelo usuário contendo as pessoas a verificar |
+| **Pessoa** | Cada linha da planilha (nome, CPF, data de nascimento) |
+| **Consulta** | O ato de verificar uma pessoa no portal da Receita Federal |
+| **Lote** | Conjunto de pessoas de uma mesma planilha enviada de uma vez |
+| **Resultado** | O comparativo retornado após a consulta: CONFERE ou NÃO CONFERE |
+| **CAPTCHA** | Desafio de verificação no portal da Receita Federal que precisa ser resolvido manualmente pelo usuário a cada consulta |
+| **Aguardando resolução** | Estado em que o sistema pausa e aguarda o usuário resolver o CAPTCHA |
+| **Verificar** | Ação de iniciar a consulta de uma pessoa na Receita Federal |
+| **Nome na Receita** | O nome oficial retornado pelo portal da Receita Federal |
+| **Nome informado** | O nome que consta na planilha enviada pelo usuário |
+| **CONFERE** | O nome informado corresponde ao nome na Receita Federal |
+| **NÃO CONFERE** | O nome informado é diferente do nome na Receita Federal |
+
+### Termos PROIBIDOS na UI
+
+`"registro"`, `"entidade"`, `"submeter"`, `"validação"`, `"transação"`, `"objeto"`, `"instância"`, `"tenant"`, `"request"`, `"payload"`, `"scraping"`, `"crawler"`, `"bot"`, `"automation"` e equivalentes técnicos.
+
+---
+
+## Fluxo Principal de Consulta
+
+1. Usuário faz upload da planilha CSV (colunas: `nome`, `cpf`, `data_nascimento`).
+2. Papaparse faz parse no browser. Dados validados via Zod antes de enviar ao servidor.
+3. Servidor cria um **lote** e persiste todas as pessoas com status `PENDENTE`.
+4. Para cada pessoa na ordem da lista:
+   - Sistema abre o portal da Receita Federal via Playwright.
+   - Preenche CPF e data de nascimento.
+   - Exibe o CAPTCHA ao usuário via streaming (SSE ou WebSocket).
+   - Usuário resolve o CAPTCHA manualmente.
+   - Playwright captura o nome retornado.
+   - Sistema compara o nome capturado com o nome informado (normalização: sem acento, maiúsculas, trim).
+   - Resultado gravado: `CONFERE` ou `NÃO CONFERE`, com ambos os nomes registrados.
+5. Usuário acompanha o progresso em tempo real.
+6. Ao final do lote, exporta relatório em CSV ou visualiza na tela.
+
+**Regras de negócio:**
+- **RN-001:** Comparação de nomes é case-insensitive e ignora acentuação. `"JOÃO SILVA"` == `"Joao Silva"`.
+- **RN-002:** CPF deve ter 11 dígitos numéricos. Aceitar entrada com ou sem formatação; armazenar sem formatação.
+- **RN-003:** Data de nascimento é obrigatória (campo do formulário da Receita Federal).
+- **RN-004:** Se o portal retornar erro ou CPF inválido, resultado da linha é marcado como `ERRO` com mensagem descritiva em linguagem do domínio.
+- **RN-005:** O CAPTCHA deve ser resolvido a cada consulta. Esta etapa jamais pode ser automatizada.
+- **RN-006:** O loop pode ser pausado pelo usuário e retomado na mesma sessão.
+
+---
+
+## Padrões Arquiteturais
+
+Use estes 4 padrões como base. Mapeie cada módulo do produto a um deles antes de codar.
+
+### P0 — Ciclo de Vida com Rascunho
+
+Aplica-se ao upload e execução do lote. O usuário envia a planilha, o sistema entra no loop de consulta. Só ao final decide **"Exportar Resultado"** ou **"Descartar Lote"**.
+
+**Estados:** `AGUARDANDO` → `EM_CONSULTA` → `CONCLUIDO` | `DESCARTADO`
+
+**Auto-save (P-003):** progresso persiste a cada consulta concluída. Sem botão "Salvar" durante o processo. Decisão única no fim: **Exportar** ou **Descartar**.
+
+**Filtragem proativa (P0.5):** a fila de consulta só exibe pessoas ainda não verificadas.
+
+### P1 — Operações com Cascatas
+
+Confirmação do lote grava registro de auditoria e marca todas as consultas como definitivas. Tudo na MESMA transação. Falha em qualquer cascata = rollback completo.
+
+### P2 — Lançamentos com Estado Calculado em Runtime
+
+Status de cada consulta (`PENDENTE`, `EM_ANDAMENTO`, `CONFERE`, `NÃO CONFERE`, `ERRO`) é calculado em runtime a partir dos campos de controle. Nunca armazenar estado derivável.
+
+### P3 — Telas Analíticas (Dashboards e Relatórios)
+
+Painel de resultados: read-only, cache curto (≤ 1 min para KPIs operacionais). Mobile-first prioriza total de `CONFERE` / `NÃO CONFERE` e progresso do lote em andamento.
+
+---
+
+## Estrutura de Pastas
+
+```
+src/
+├── actions/
+│   ├── consulta/
+│   │   ├── iniciar-lote.action.ts
+│   │   ├── registrar-resultado.action.ts
+│   │   ├── pausar-lote.action.ts
+│   │   └── descartar-lote.action.ts
+│   └── auth/
+├── app/
+│   ├── (auth)/
+│   ├── (app)/
+│   │   ├── painel/                    # Dashboard P3
+│   │   ├── lote/
+│   │   │   ├── page.tsx               # Upload de planilha
+│   │   │   └── [loteId]/
+│   │   │       ├── page.tsx           # Progresso em tempo real + CAPTCHA
+│   │   │       └── resultado/
+│   │   │           └── page.tsx       # Painel de resultados + exportação
+│   │   └── configuracoes/
+│   └── _components/
+├── components/
+│   ├── ui/                            # shadcn/ui base
+│   └── dominio/
+│       ├── upload-planilha.tsx
+│       ├── progresso-lote.tsx
+│       ├── captcha-viewer.tsx         # Iframe/stream do portal da Receita
+│       ├── resultado-badge.tsx        # Badge CONFERE / NÃO CONFERE / ERRO
+│       └── tabela-resultados.tsx      # Compartilhada entre progresso e resultado final
+├── db/
+│   └── schema/
+│       ├── lote.ts
+│       └── consulta.ts
+├── hooks/
+│   ├── queries/
+│   │   ├── use-lote.ts
+│   │   └── use-consultas.ts
+│   └── mutations/
+│       ├── use-iniciar-lote.ts
+│       └── use-registrar-resultado.ts
+├── lib/
+│   ├── safe-action.ts
+│   ├── playwright.ts                  # Instância e helpers do browser Playwright
+│   └── format/
+│       ├── format-cpf.ts              # "12345678901" → "123.456.789-01"
+│       └── normalizar-nome.ts         # Remove acentos, uppercase, trim
+└── utils/
+```
+
+---
+
+## Schemas Drizzle (padrões)
+
+Toda entidade de domínio tem:
+- `id: uuid().primaryKey().defaultRandom()`
+- `deletedAt: timestamp()` — soft delete (P-007)
+- `createdAt` e `updatedAt` — timestamps
+- Enums via `pgEnum()` para status
+
+**Schema do Lote:**
+
+```typescript
+export const statusLoteEnum = pgEnum("status_lote", [
+  "AGUARDANDO", "EM_CONSULTA", "CONCLUIDO", "DESCARTADO",
+]);
+
+export const lotes = pgTable("lotes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  nomeArquivo: text("nome_arquivo").notNull(),
+  status: statusLoteEnum("status").default("AGUARDANDO").notNull(),
+  totalPessoas: integer("total_pessoas").notNull(),
+  consultadasCount: integer("consultadas_count").default(0).notNull(),
+  deletedAt: timestamp("deleted_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+```
+
+**Schema da Consulta:**
+
+```typescript
+export const statusConsultaEnum = pgEnum("status_consulta", [
+  "PENDENTE", "EM_ANDAMENTO", "CONFERE", "NAO_CONFERE", "ERRO",
+]);
+
+export const consultas = pgTable("consultas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  loteId: uuid("lote_id").references(() => lotes.id).notNull(),
+  ordemNaLista: integer("ordem_na_lista").notNull(),
+  nomeInformado: text("nome_informado").notNull(),
+  cpf: text("cpf").notNull(),                       // 11 dígitos, sem formatação
+  dataNascimento: text("data_nascimento").notNull(), // "DD/MM/YYYY"
+  nomeNaReceita: text("nome_na_receita"),
+  status: statusConsultaEnum("status").default("PENDENTE").notNull(),
+  erroMensagem: text("erro_mensagem"),
+  consultadaEm: timestamp("consultada_em"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+```
+
+---
+
+## Server Actions
+
+**Localização:** `src/actions/consulta/`
+
+**Regras:**
+- SEMPRE `"use server"` no topo
+- Schema Zod no mesmo arquivo da action
+- SEMPRE valide regras de negócio no backend (P-005)
+- NUNCA try/catch genérico — deixe `next-safe-action` tratar
+- Confirmação de lote é transacional — `db.transaction()`
+- Mensagens de erro em linguagem do domínio: `"O CPF informado não foi encontrado na Receita Federal"`, não `"404 not found"`
+
+---
+
+## Componentes React
+
+**shadcn/ui:** use sempre que possível.
+**Ícones:** sempre `@tabler/icons-react`.
+
+### Componentes de Domínio Reutilizáveis
+
+```
+src/components/dominio/
+├── upload-planilha.tsx        # Drag-and-drop + validação de colunas do CSV
+├── progresso-lote.tsx         # Barra de progresso + contadores em tempo real
+├── captcha-viewer.tsx         # Exibe o frame do CAPTCHA para resolução manual
+├── resultado-badge.tsx        # Badge colorido: CONFERE (verde) / NÃO CONFERE (vermelho) / ERRO (amarelo)
+└── tabela-resultados.tsx      # Tabela paginada com nome informado, nome na Receita e resultado
+```
+
+### Acessibilidade prática
+
+- Botões de ação primária ≥ 56×56 dp em fluxos de campo.
+- Contraste ≥ 7:1 em telas usadas em condições adversas; ≥ 4.5:1 padrão.
+- **Ícone SOLO é proibido** em ações primárias — sempre ícone + texto.
+- Botões primários na metade inferior da tela (uso com 1 mão).
+
+---
+
+## Formulários
+
+SEMPRE **React Hook Form + Zod + shadcn/ui Form**.
+
+```typescript
+"use server";
+
+import { z } from "zod";
+import { actionClient } from "@/lib/safe-action";
+
+const iniciarLoteSchema = z.object({
+  nomeArquivo: z.string().min(1),
+  pessoas: z.array(z.object({
+    nomeInformado: z.string().min(1),
+    cpf: z.string().regex(/^\d{11}$/, "CPF deve ter 11 dígitos"),
+    dataNascimento: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/),
+  })).min(1).max(100),
+});
+
+export const iniciarLote = actionClient
+  .schema(iniciarLoteSchema)
+  .action(async ({ parsedInput }) => {
+    // implementação
+  });
+```
+
+---
+
+## React Query
+
+**Hooks de query:** `src/hooks/queries/use-[entidade].ts`
+**Hooks de mutation:** `src/hooks/mutations/use-[acao].ts`
+
+SEMPRE exporte a função de query key.
+
+Invalidação após mutations: invalidar TODAS as queries afetadas pelas cascatas.
+
+---
+
+## Estado em URL (P-006)
+
+**Regra:** todo filtro / seleção / aba / paginação persistido em query params.
+
+**Hooks canônicos:**
+- `useUrlState<T>("status", "PENDENTE", VALUES)` — single-value enum
+- `useUrlListState("resultado")` — multi-select (`?resultado=CONFERE,ERRO`)
+- `useUrlDateRange("consultada")` — range (`?consultadaDe=...&consultadaAte=...`)
+
+**Loop de consulta:** etapa atual (`?pessoa=3`) persiste em URL. Refresh retorna à mesma pessoa pendente.
+
+---
+
+## Notificações (UX)
+
+Use `react-hot-toast`:
+
+- Mensagens em **linguagem do domínio**.
+- Erros **orientam para correção** ("O CPF da linha 5 está incompleto" em vez de "Validation error on field cpf").
+- Ações reversíveis usam **Desfazer ≥ 5s** em vez de "tem certeza?".
+- Ações irreversíveis (descartar lote) pedem confirmação explícita com texto claro do que vai acontecer.
+
+---
+
+## Drizzle + Supabase
+
+- NUNCA use migrations (`drizzle-kit generate`).
+- SEMPRE use `drizzle-kit push` para sincronizar schema com o banco.
+- Conexão via `DATABASE_URL` apontando para o **Transaction Pooler** do Supabase (porta 6543) — obrigatório em ambiente Serverless.
+- Variáveis de ambiente necessárias: `DATABASE_URL` (Transaction Pooler, porta 6543) e `DIRECT_URL` (conexão direta, para uso exclusivo do `drizzle-kit push`).
+- Soft delete via coluna `deletedAt`.
+- Auditoria: eventos importantes (concluir lote, descartar lote) gravam evento em tabela `auditoria_eventos` com snapshot antes/depois.
+
+---
+
+## Performance
+
+- Time-to-interactive da Dashboard ≤ 2s em 4G.
+- Streaming de progresso via SSE com debounce de 500ms para não sobrecarregar o cliente.
+- Paginação ou virtualização na tabela de resultados para lotes > 100 pessoas.
+- Debounce em buscas (300ms).
+
+---
+
+## Segurança
+
+- Validação Zod em TODAS as actions.
+- NUNCA confiar em cálculos do client — recalcular no server.
+- Rate limiting na rota de início de consulta para evitar abuso.
+- Soft delete por padrão — campo `deletedAt`.
+- Histórico imutável — append-only em `auditoria_eventos`.
+- CPF nunca exposto em logs ou mensagens de erro visíveis ao usuário.
+
+---
+
+## Pendências Críticas
+
+- **Pend-1** Estratégia de execução do Playwright na Vercel: usar `@sparticuz/chromium` nas Serverless Functions ou um microserviço separado (Railway / Fly.io). Sugestão de default: `@sparticuz/chromium` na própria Vercel para simplicidade no MVP.
+- **Pend-2** Mecanismo de streaming do CAPTCHA para o usuário: SSE (Server-Sent Events) ou WebSocket. Sugestão: SSE por ser mais simples e compatível com Next.js App Router sem servidor adicional.
+- **Pend-3** Autenticação: MVP público (sem login) ou exige conta. Sugestão: sem autenticação no MVP single-user.
+- **Pend-4** Limite de linhas por lote: definir máximo para evitar sessões de browser muito longas. Sugestão: 100 linhas por lote no MVP.

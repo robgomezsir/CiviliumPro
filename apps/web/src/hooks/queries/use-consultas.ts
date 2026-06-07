@@ -1,0 +1,28 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { buscarConsultas } from "@/actions/consulta/buscar-consultas.action";
+
+export function consultasQueryKey(loteId: string) {
+  return ["consultas", loteId] as const;
+}
+
+export function useConsultas(loteId: string) {
+  return useQuery({
+    queryKey: consultasQueryKey(loteId),
+    queryFn: async () => {
+      const result = await buscarConsultas({ loteId });
+      if (result?.serverError) throw new Error(result.serverError);
+      return result?.data ?? [];
+    },
+    enabled: Boolean(loteId),
+    refetchInterval: (query) => {
+      const rows = query.state.data;
+      if (!rows?.length) return false;
+      const emAndamento = rows.some(
+        (c) => c.status === "EM_ANDAMENTO" || c.status === "PENDENTE",
+      );
+      return emAndamento ? 2000 : false;
+    },
+  });
+}

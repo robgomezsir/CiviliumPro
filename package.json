@@ -1,0 +1,14 @@
+{
+  "name": "civiliumpro",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @civilium/web dev",
+    "dev:automacao": "pnpm --filter @civilium/automacao-receita dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "db:push": "pnpm --filter @civilium/web db:push"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
