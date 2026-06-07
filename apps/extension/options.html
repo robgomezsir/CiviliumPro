@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Civilium Bridge — Configuração</title>
+  <link rel="icon" type="image/png" href="icons/icon32.png" />
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #475569;
+      --accent: #1d4ed8;
+      --accent-hover: #1e40af;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --ok: #166534;
+      --ok-bg: #dcfce7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .wrap {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgb(15 23 42 / 12%);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .hint {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    input:focus {
+      outline: 2px solid #93c5fd;
+      border-color: #60a5fa;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+      flex: 1;
+    }
+
+    .primary:hover { background: var(--accent-hover); }
+
+    .secondary {
+      background: white;
+      color: var(--ink);
+      border: 1px solid var(--border);
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      display: none;
+    }
+
+    .status.ok {
+      display: block;
+      background: var(--ok-bg);
+      color: var(--ok);
+    }
+
+    .status.err {
+      display: block;
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <img src="icons/icon48.png" alt="Civilium Bridge" />
+      <div>
+        <h1>Civilium Bridge</h1>
+        <p class="subtitle">Configuração da conexão com o Civilium</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="form">
+        <label for="apiBase">URL do Civilium</label>
+        <p class="hint">Endereço do app web onde você inicia as consultas.</p>
+        <input id="apiBase" type="url" required placeholder="https://civiliumpro.vercel.app" />
+
+        <label for="webhookSecret">Chave de integração</label>
+        <p class="hint">
+          Fornecida pelo administrador do Civilium. Deve ser igual ao valor
+          <code>CIVILIUM_WEBHOOK_SECRET</code> configurado no servidor.
+        </p>
+        <input id="webhookSecret" type="password" required autocomplete="off" placeholder="Cole a chave aqui" />
+
+        <div class="actions">
+          <button type="button" class="secondary" id="toggleSecret">Mostrar chave</button>
+          <button type="submit" class="primary">Salvar configuração</button>
+        </div>
+      </form>
+
+      <div id="status" class="status" role="status"></div>
+    </div>
+
+    <p class="footer">
+      A extensão só se comunica com o Civilium e o portal da Receita Federal.
+      Dados ficam no seu navegador até o envio da consulta.
+      <a href="https://civiliumpro.vercel.app/privacidade-extensao" target="_blank" rel="noopener noreferrer">Política de privacidade</a>
+    </p>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

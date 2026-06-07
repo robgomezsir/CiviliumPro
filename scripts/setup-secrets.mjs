@@ -69,3 +69,6 @@ if (configNovo !== configAtual) {
 console.log("\nConfigure os mesmos valores na Vercel:");
 console.log("  CIVILIUM_WEBHOOK_SECRET");
 console.log("  CRON_SECRET");
+console.log("\nExtensão Chrome:");
+console.log("  • Equipe (ZIP): pnpm pack:extension");
+console.log("  • Loja: Opções da extensão → URL + chave de integração");

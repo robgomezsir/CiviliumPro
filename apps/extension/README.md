@@ -1,58 +1,61 @@
-# Civilium Bridge — Extensão Chrome v2.3
+# Civilium Bridge — Extensão Chrome v3.0
 
 Ponte entre o app Civilium e o portal da Receita Federal.
 
-## Distribuição para a equipe
+## Identidade visual
 
-Na raiz do monorepo:
+Ícones gerados a partir de `Civilium.ico` na raiz do monorepo:
 
 ```bash
-pnpm setup:secrets   # se config.js ainda não existir
+pnpm icons:extension
+```
+
+Arquivos em `icons/icon{16,32,48,128}.png`.
+
+## Distribuição interna (equipe)
+
+```bash
+pnpm setup:secrets   # cria config.js local (gitignored)
 pnpm pack:extension
 ```
 
-Gera em `dist/`:
+Gera `dist/civilium-bridge-v{versão}.zip` com segredo embutido para instalação em modo desenvolvedor.
 
-- `civilium-bridge-v{versão}.zip` — pacote pronto para instalar (inclui guias)
-- `GUIA-INSTALACAO.md` — instruções em Markdown
-- `GUIA-INSTALACAO.html` — guia visual; abra no Chrome → **Ctrl+P** → **Salvar como PDF**
-
-Envie o ZIP e o guia (HTML, PDF ou Markdown) por canal seguro.
-
-## Instalação (desenvolvimento)
-
-1. Abra `chrome://extensions`
-2. Ative **Modo do desenvolvedor**
-3. Clique em **Carregar sem compactação**
-4. Selecione a pasta `apps/extension`
-
-## Configuração
-
-Copie `config.example.js` para `config.js` e defina o segredo:
+## Chrome Web Store
 
 ```bash
-cp config.example.js config.js
+pnpm icons:extension
+pnpm pack:store
 ```
 
-O `WEBHOOK_SECRET` deve ser o mesmo valor de `CIVILIUM_WEBHOOK_SECRET` na Vercel.
-Ou execute na raiz do monorepo: `pnpm setup:secrets`
+Gera `dist/civilium-bridge-store-v{versão}.zip` **sem segredos**.
 
-A extensão injeta `bridge.js` nas páginas do Civilium para comunicação segura com o service worker (sem expor o ID da extensão).
+Instruções completas de listing, privacidade e revisão: **`CHROME_WEB_STORE.md`**.
 
-## Atualizar após mudanças
+Política de privacidade: https://civiliumpro.vercel.app/privacidade-extensao
 
-Em `chrome://extensions`, clique em **Recarregar** na extensão Civilium Bridge.
+## Configuração (loja / primeira instalação)
+
+1. Instale a extensão
+2. Abra **Opções** (clique no ícone da extensão ou em `chrome://extensions` → Detalhes → Opções)
+3. Informe a URL do Civilium e a **chave de integração** (`CIVILIUM_WEBHOOK_SECRET`)
+
+## Instalação em desenvolvimento
+
+1. `chrome://extensions` → Modo do desenvolvedor
+2. **Carregar sem compactação** → pasta `apps/extension` ou ZIP do `pack:extension`
+3. Configure em Opções se não usar o pacote com segredo embutido
 
 ## Solução de problemas
 
-- **Erros em `bridge.js` / "Receiving end does not exist":** recarregue a extensão em `chrome://extensions`, recarregue a aba do Civilium e confira se o service worker está ativo (link "service worker" na extensão).
-- **Resultado não volta ao Civilium:** recarregue a extensão, confira se `WEBHOOK_SECRET` em `config.js` é igual ao `CIVILIUM_WEBHOOK_SECRET` na Vercel, e mantenha a aba da Receita aberta até aparecer o comprovante.
-- **Consulta travada em "Em andamento":** clique em **Abrir portal novamente** ou recarregue a página do lote (expira após 5 minutos).
+- **Extensão não detectada:** recarregue extensão e aba do Civilium; confirme URL `https://civiliumpro.vercel.app`
+- **Bridge inativa / config_ausente:** abra Opções e salve URL + chave de integração
+- **Erros em bridge.js:** recarregue extensão; verifique service worker ativo
+- **Resultado não volta:** confira chave em Opções = `CIVILIUM_WEBHOOK_SECRET` na Vercel
 
-## Fluxo em lote (modo contínuo)
+## Fluxo em lote
 
-1. Usuário clica **Iniciar verificação em lote** no Civilium
-2. Extensão abre **uma única aba** no portal da Receita
-3. Usuário resolve o CAPTCHA para cada pessoa
-4. Ao detectar o resultado, a extensão envia ao Civilium e **carrega automaticamente a próxima pessoa na mesma aba**
-5. O processo se repete até o fim da lista
+1. **Iniciar verificação em lote** no Civilium
+2. Uma aba da Receita para todo o lote
+3. CAPTCHA manual por pessoa
+4. Resultado volta ao Civilium; próxima pessoa na mesma aba

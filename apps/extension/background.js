@@ -1,25 +1,54 @@
 "use strict";
 
-importScripts("config.js");
+importScripts("config.defaults.js", "config.embedded.js");
 
-if (
-  typeof CIVILIUM_CONFIG === "undefined" ||
-  !CIVILIUM_CONFIG.API_BASE ||
-  !CIVILIUM_CONFIG.WEBHOOK_SECRET
-) {
-  throw new Error(
-    "[Civilium Bridge] config.js inválido. Copie config.example.js e configure WEBHOOK_SECRET.",
-  );
-}
-
-const API = `${CIVILIUM_CONFIG.API_BASE}/api/resultado-externo`;
-const API_PROXIMA = `${CIVILIUM_CONFIG.API_BASE}/api/proxima-consulta`;
-const WEBHOOK_SECRET = CIVILIUM_CONFIG.WEBHOOK_SECRET;
 const STORAGE_PREFIX = "consulta_tab_";
 const AVANCO_DELAY_MS = 900;
 
 /** @type {Record<number, object>} */
 const consultasPorAba = {};
+
+/** @type {{ apiBase: string; webhookSecret: string } | null} */
+let configCache = null;
+
+async function migrarConfigEmbutida() {
+  if (!CIVILIUM_EMBEDDED_CONFIG?.webhookSecret) return;
+
+  const { webhookSecret } = await chrome.storage.local.get(["webhookSecret"]);
+  if (webhookSecret) return;
+
+  await chrome.storage.local.set({
+    apiBase: CIVILIUM_EMBEDDED_CONFIG.apiBase || CIVILIUM_DEFAULTS.API_BASE,
+    webhookSecret: CIVILIUM_EMBEDDED_CONFIG.webhookSecret,
+  });
+}
+
+async function obterConfig() {
+  if (configCache) return configCache;
+
+  await migrarConfigEmbutida();
+
+  const { apiBase, webhookSecret } = await chrome.storage.local.get([
+    "apiBase",
+    "webhookSecret",
+  ]);
+
+  if (!webhookSecret) return null;
+
+  configCache = {
+    apiBase: (apiBase || CIVILIUM_DEFAULTS.API_BASE).replace(/\/$/, ""),
+    webhookSecret,
+  };
+
+  return configCache;
+}
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local") return;
+  if (changes.apiBase || changes.webhookSecret) {
+    configCache = null;
+  }
+});
 
 async function persistirConsulta(tabId, consulta) {
   consultasPorAba[tabId] = consulta;
@@ -49,11 +78,14 @@ async function removerConsulta(tabId) {
 }
 
 async function enviarWebhook(payload) {
-  const response = await fetch(API, {
+  const config = await obterConfig();
+  if (!config) throw new Error("config_ausente");
+
+  const response = await fetch(`${config.apiBase}/api/resultado-externo`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-civilium-secret": WEBHOOK_SECRET,
+      "x-civilium-secret": config.webhookSecret,
     },
     body: JSON.stringify(payload),
   });
@@ -67,15 +99,18 @@ async function enviarWebhook(payload) {
 }
 
 async function buscarProximaConsulta(consulta, statusResultado) {
+  const config = await obterConfig();
+  if (!config) throw new Error("config_ausente");
+
   const repetir = ["CAPTCHA_INVALIDO", "PORTAL_INDISPONIVEL"].includes(
     statusResultado,
   );
 
-  const response = await fetch(API_PROXIMA, {
+  const response = await fetch(`${config.apiBase}/api/proxima-consulta`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-civilium-secret": WEBHOOK_SECRET,
+      "x-civilium-secret": config.webhookSecret,
     },
     body: JSON.stringify({
       loteId: consulta.loteId,
@@ -120,6 +155,12 @@ async function avancarFilaLote(tabId, consulta, statusResultado) {
 }
 
 async function abrirConsultaNaAba(msg, sendResponse) {
+  const config = await obterConfig();
+  if (!config) {
+    sendResponse({ ok: false, erro: "config_ausente" });
+    return;
+  }
+
   const payload = msg.payload ?? {};
   const modoLote = Boolean(payload.modoLote ?? msg.modoLote);
   const tabIdExistente = msg.tabId;
@@ -163,8 +204,17 @@ chrome.runtime.onStartup.addListener(async () => {
   }
 });
 
-chrome.runtime.onInstalled.addListener(() => {
-  console.info("[Civilium Bridge] extensão pronta");
+chrome.runtime.onInstalled.addListener(async (details) => {
+  await migrarConfigEmbutida();
+
+  const config = await obterConfig();
+  if (!config && details.reason === "install") {
+    chrome.runtime.openOptionsPage();
+  }
+});
+
+chrome.action.onClicked.addListener(() => {
+  chrome.runtime.openOptionsPage();
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -174,7 +224,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.tipo === "healthcheck") {
-    sendResponse({ ok: true });
+    obterConfig()
+      .then((config) => {
+        sendResponse({ ok: Boolean(config), configurado: Boolean(config) });
+      })
+      .catch(() => {
+        sendResponse({ ok: false, configurado: false });
+      });
     return true;
   }
 

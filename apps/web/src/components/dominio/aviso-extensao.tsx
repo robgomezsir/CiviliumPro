@@ -19,11 +19,10 @@ export function AvisoExtensao() {
       <div>
         <p className="font-medium">Extensão Civilium Bridge necessária</p>
         <p className="mt-1 text-amber-900">
-          Para consultar a Receita Federal, instale a extensão Chrome da pasta{" "}
-          <code className="rounded bg-amber-100 px-1">apps/extension</code> em{" "}
-          <code className="rounded bg-amber-100 px-1">chrome://extensions</code>{" "}
-          e configure o <code className="rounded bg-amber-100 px-1">config.js</code>{" "}
-          com o mesmo segredo do servidor.
+          Para consultar a Receita Federal, instale a extensão{" "}
+          <strong>Civilium Bridge</strong> no Chrome e configure em{" "}
+          <strong>Opções da extensão</strong> a URL do Civilium e a chave de
+          integração fornecida pelo administrador.
         </p>
       </div>
     </div>

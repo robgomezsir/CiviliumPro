@@ -37,7 +37,7 @@ export function BotaoAbrirPortal({
       const online = await pingExtensao();
       if (!online) {
         toast.error(
-          "Extensão Civilium Bridge não encontrada. Instale a extensão no Chrome.",
+          "Extensão Civilium Bridge não detectada ou não configurada. Instale a extensão e preencha Opções (URL + chave de integração).",
         );
         return;
       }

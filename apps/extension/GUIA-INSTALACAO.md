@@ -15,7 +15,7 @@ Extensão Chrome que conecta o **Civilium** ao portal da Receita Federal para co
 | Arquivo recebido | `{{ZIP_NAME}}` (enviado pelo administrador) |
 | Permissão | Modo do desenvolvedor no Chrome (passo a passo abaixo) |
 
-> O pacote já vem configurado. **Não altere** os arquivos da extensão.
+> Pacote interno: já vem configurado. Pacote da Chrome Web Store: configure em **Opções da extensão** na primeira instalação.
 
 ---
 
@@ -47,7 +47,14 @@ No canto superior direito da página, ative a chave **Modo do desenvolvedor**.
 2. Selecione a pasta extraída (`{{FOLDER_NAME}}`).
 3. Confirme que aparece **Civilium Bridge** na lista, versão **{{VERSION}}**.
 
-### 5. Fixar a extensão (opcional)
+### 5. Configurar conexão (somente Chrome Web Store)
+
+1. Clique no ícone **Civilium Bridge** na barra do Chrome
+2. Informe a URL: `https://civiliumpro.vercel.app`
+3. Cole a **chave de integração** fornecida pelo administrador
+4. Clique em **Salvar configuração**
+
+### 6. Fixar a extensão (opcional)
 
 Clique no ícone de quebra-cabeça na barra do Chrome e fixe **Civilium Bridge** para acesso rápido.
 

@@ -9,13 +9,18 @@ const distDir = path.join(root, "dist");
 const guiaMd = path.join(extensionDir, "GUIA-INSTALACAO.md");
 const guiaHtml = path.join(extensionDir, "GUIA-INSTALACAO.html");
 
-const ARQUIVOS_EXTENSAO = [
+const ARQUIVOS_BASE = [
   "manifest.json",
   "background.js",
   "bridge.js",
   "content_script.js",
-  "config.js",
+  "config.defaults.js",
+  "config.embedded.js",
+  "options.html",
+  "options.js",
 ];
+
+const PASTA_ICONES = "icons";
 
 function lerVersao() {
   const manifest = JSON.parse(
@@ -24,21 +29,26 @@ function lerVersao() {
   return manifest.version;
 }
 
-function validarArquivos() {
-  const faltando = ARQUIVOS_EXTENSAO.filter(
-    (arquivo) => !fs.existsSync(path.join(extensionDir, arquivo)),
-  );
+function lerConfigLocal() {
+  const configPath = path.join(extensionDir, "config.js");
+  if (!fs.existsSync(configPath)) return null;
 
-  if (faltando.length === 0) return;
+  const conteudo = fs.readFileSync(configPath, "utf8");
+  const apiBase =
+    conteudo.match(/API_BASE:\s*"([^"]+)"/)?.[1] ??
+    "https://civiliumpro.vercel.app";
+  const webhookSecret = conteudo.match(/WEBHOOK_SECRET:\s*"([^"]+)"/)?.[1];
 
-  if (faltando.includes("config.js")) {
-    console.error("✗ config.js não encontrado em apps/extension/");
-    console.error("  Execute na raiz: pnpm setup:secrets");
-    console.error("  Ou copie: cp apps/extension/config.example.js apps/extension/config.js");
-    process.exit(1);
-  }
+  if (!webhookSecret) return null;
+  return { apiBase, webhookSecret };
+}
 
-  console.error(`✗ Arquivos ausentes: ${faltando.join(", ")}`);
+function validarConfig() {
+  const config = lerConfigLocal();
+  if (config) return config;
+
+  console.error("✗ config.js não encontrado ou sem WEBHOOK_SECRET");
+  console.error("  Execute na raiz: pnpm setup:secrets");
   process.exit(1);
 }
 
@@ -55,15 +65,34 @@ function copiarGuia(origem, destino, versao) {
   fs.writeFileSync(destino, conteudo, "utf8");
 }
 
-function copiarParaStaging(pastaDestino, versao) {
+function gerarEmbedded(config) {
+  return `/** Gerado por pnpm pack:extension — não publicar na Chrome Web Store */\nvar CIVILIUM_EMBEDDED_CONFIG = ${JSON.stringify(config, null, 2)};\n`;
+}
+
+function copiarIcones(pastaDestino) {
+  const origem = path.join(extensionDir, PASTA_ICONES);
+  const destino = path.join(pastaDestino, PASTA_ICONES);
+  fs.cpSync(origem, destino, { recursive: true });
+}
+
+function copiarParaStaging(pastaDestino, versao, config) {
   fs.mkdirSync(pastaDestino, { recursive: true });
 
-  for (const arquivo of ARQUIVOS_EXTENSAO) {
+  for (const arquivo of ARQUIVOS_BASE) {
+    if (arquivo === "config.embedded.js") continue;
     fs.copyFileSync(
       path.join(extensionDir, arquivo),
       path.join(pastaDestino, arquivo),
     );
   }
+
+  fs.writeFileSync(
+    path.join(pastaDestino, "config.embedded.js"),
+    gerarEmbedded(config),
+    "utf8",
+  );
+
+  copiarIcones(pastaDestino);
 
   if (fs.existsSync(guiaMd)) {
     copiarGuia(guiaMd, path.join(pastaDestino, "GUIA-INSTALACAO.md"), versao);
@@ -93,8 +122,7 @@ function criarZip(origem, destinoZip) {
 }
 
 async function main() {
-  validarArquivos();
-
+  const config = validarConfig();
   const versao = lerVersao();
   const nomePacote = `civilium-bridge-v${versao}`;
   const pastaPacote = path.join(distDir, nomePacote);
@@ -103,7 +131,7 @@ async function main() {
   fs.rmSync(pastaPacote, { recursive: true, force: true });
   fs.mkdirSync(distDir, { recursive: true });
 
-  copiarParaStaging(pastaPacote, versao);
+  copiarParaStaging(pastaPacote, versao, config);
 
   const bytes = await criarZip(pastaPacote, zipPath);
   const tamanhoKb = (bytes / 1024).toFixed(1);
@@ -111,24 +139,12 @@ async function main() {
   const guiaDistMd = path.join(distDir, "GUIA-INSTALACAO.md");
   const guiaDistHtml = path.join(distDir, "GUIA-INSTALACAO.html");
 
-  if (fs.existsSync(guiaMd)) {
-    copiarGuia(guiaMd, guiaDistMd, versao);
-  }
+  if (fs.existsSync(guiaMd)) copiarGuia(guiaMd, guiaDistMd, versao);
+  if (fs.existsSync(guiaHtml)) copiarGuia(guiaHtml, guiaDistHtml, versao);
 
-  if (fs.existsSync(guiaHtml)) {
-    copiarGuia(guiaHtml, guiaDistHtml, versao);
-  }
-
-  console.log(`✓ Pacote pronto: ${zipPath} (${tamanhoKb} KB)`);
-  console.log(`✓ Pasta de instalação: ${pastaPacote}`);
-
-  console.log("\nDistribua para a equipe:");
-  console.log(`  • ${zipPath}`);
-  if (fs.existsSync(guiaDistMd)) console.log(`  • ${guiaDistMd}`);
-  if (fs.existsSync(guiaDistHtml)) {
-    console.log(`  • ${guiaDistHtml}`);
-    console.log("    PDF: abra o HTML no Chrome → Ctrl+P → Salvar como PDF");
-  }
+  console.log(`✓ Pacote interno: ${zipPath} (${tamanhoKb} KB)`);
+  console.log(`✓ Pasta: ${pastaPacote}`);
+  console.log("\nDistribua para a equipe (segredo embutido no pacote).");
 }
 
 main().catch((error) => {
