@@ -1,4 +1,4 @@
-import { nomesConferem } from "@civilium/shared";
+import { encurtarMensagemErroReceita, nomesConferem } from "@civilium/shared";
 import type { StatusConsulta } from "@/db/schema/consulta";
 
 type ResultadoExternoBody = {
@@ -37,13 +37,15 @@ export function resolverStatusConsulta(
     return {
       status: statusTerminal,
       nomeNaReceita: body.nomeReceita ?? null,
-      erroMensagem: body.mensagemErro ?? null,
+      erroMensagem: encurtarMensagemErroReceita(body.mensagemErro),
     };
   }
 
   return {
     status: "ERRO",
     nomeNaReceita: null,
-    erroMensagem: body.mensagemErro ?? "Resultado inválido recebido da extensão",
+    erroMensagem:
+      encurtarMensagemErroReceita(body.mensagemErro) ??
+      "Resultado inválido recebido da extensão",
   };
 }

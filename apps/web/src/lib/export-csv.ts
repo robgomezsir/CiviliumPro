@@ -1,4 +1,8 @@
-import { formatarCpf, type StatusConsulta } from "@civilium/shared";
+import {
+  encurtarMensagemErroReceita,
+  formatarCpf,
+  type StatusConsulta,
+} from "@civilium/shared";
 
 const labelsStatus: Record<StatusConsulta, string> = {
   PENDENTE: "Pendente",
@@ -35,7 +39,7 @@ export function gerarCsvResultados(linhas: LinhaExportacao[]): string {
     formatarCpf(l.cpf),
     l.nomeNaReceita ?? "",
     labelsStatus[l.status as StatusConsulta] ?? l.status,
-    l.erroMensagem ?? "",
+    encurtarMensagemErroReceita(l.erroMensagem) ?? "",
     l.consultadaEm ? l.consultadaEm.toISOString() : "",
   ]);
   return [header, ...rows]

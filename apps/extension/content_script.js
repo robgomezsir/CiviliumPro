@@ -43,7 +43,7 @@ function extrairMensagemErroDom() {
     if (!texto) continue;
 
     if (
-      /divergente|inválido|invalido|não confere|nao confere|retorne a página anterior|retorne a pagina anterior/i.test(
+      /divergente|inválido|invalido|incorreto|não confere|nao confere|retorne a página anterior|retorne a pagina anterior/i.test(
         texto,
       )
     ) {
@@ -59,24 +59,75 @@ function extrairTrechoMensagem(texto, padrao) {
   return match ? normalizarTexto(match[0]) : null;
 }
 
+function encurtarMensagemErro(mensagem) {
+  const texto = normalizarTexto(mensagem);
+  if (!texto) return mensagem;
+
+  if (/cpf incorreto/i.test(texto)) {
+    return "CPF incorreto.";
+  }
+
+  const dataMatch = texto.match(
+    /data de nascimento informada\s+(\d{2}\/\d{2}\/\d{4})/i,
+  );
+  if (dataMatch && /divergente/i.test(texto)) {
+    return `Data de nascimento informada ${dataMatch[1]} divergente`;
+  }
+
+  if (/cpf inv[aá]lido/i.test(texto)) {
+    return "CPF inválido.";
+  }
+
+  if (/cpf.*divergente|divergente.*cpf/i.test(texto)) {
+    return "CPF divergente.";
+  }
+
+  if (/data de nascimento inv[aá]lida/i.test(texto)) {
+    return "Data de nascimento inválida.";
+  }
+
+  const antesRetorne = texto.split(/Retorne/i)[0]?.trim();
+  if (
+    antesRetorne &&
+    antesRetorne.length < texto.length &&
+    antesRetorne.length >= 8
+  ) {
+    const limpo = antesRetorne.replace(/\.\s*$/, "");
+    return `${limpo}.`;
+  }
+
+  return texto.length > 120 ? `${texto.slice(0, 117)}...` : texto;
+}
+
+function criarErro(status, mensagem) {
+  return {
+    status,
+    mensagemErro: encurtarMensagemErro(mensagem),
+  };
+}
+
 function detectarErroPortal(textoOriginal) {
   const texto = normalizarTexto(textoOriginal);
   const upper = texto.toUpperCase();
+
+  if (upper.includes("CPF INCORRETO")) {
+    return criarErro("ERRO", "CPF incorreto.");
+  }
 
   if (
     /DATA DE NASCIMENTO INFORMADA/i.test(texto) &&
     /DIVERGENTE/i.test(texto)
   ) {
-    return {
-      status: "ERRO",
-      mensagemErro:
-        extrairMensagemErroDom() ||
-        extrairTrechoMensagem(
-          texto,
-          /Data de nascimento informada[\s\S]*?(?=Retorne à página anterior e informe-o novamente!|Retorne a página anterior e informe-o novamente!|$)/i,
-        ) ||
-        "Data de nascimento divergente da base da Receita Federal",
-    };
+    const dataMatch = texto.match(
+      /data de nascimento informada\s+(\d{2}\/\d{2}\/\d{4})/i,
+    );
+    return criarErro(
+      "ERRO",
+      dataMatch
+        ? `Data de nascimento informada ${dataMatch[1]} divergente`
+        : extrairMensagemErroDom() ||
+            "Data de nascimento divergente da base da Receita Federal",
+    );
   }
 
   if (
@@ -85,34 +136,24 @@ function detectarErroPortal(textoOriginal) {
       /DADOS DO CPF/i.test(upper)) &&
     /DIVERGENTE/i.test(upper)
   ) {
-    return {
-      status: "ERRO",
-      mensagemErro:
-        extrairMensagemErroDom() ||
-        extrairTrechoMensagem(
-          texto,
-          /CPF[\s\S]*?divergente[\s\S]*?(?=Retorne|$)/i,
-        ) ||
-        "CPF divergente da base da Receita Federal",
-    };
+    return criarErro(
+      "ERRO",
+      extrairMensagemErroDom() || "CPF divergente da base da Receita Federal",
+    );
   }
 
   if (upper.includes("CPF INVÁLIDO") || upper.includes("CPF INVALIDO")) {
-    return {
-      status: "ERRO",
-      mensagemErro: extrairMensagemErroDom() || "CPF inválido",
-    };
+    return criarErro("ERRO", extrairMensagemErroDom() || "CPF inválido");
   }
 
   if (
     upper.includes("DATA DE NASCIMENTO INVÁLIDA") ||
     upper.includes("DATA DE NASCIMENTO INVALIDA")
   ) {
-    return {
-      status: "ERRO",
-      mensagemErro:
-        extrairMensagemErroDom() || "Data de nascimento inválida",
-    };
+    return criarErro(
+      "ERRO",
+      extrairMensagemErroDom() || "Data de nascimento inválida",
+    );
   }
 
   if (
@@ -120,20 +161,14 @@ function detectarErroPortal(textoOriginal) {
     upper.includes("CARACTERES DA IMAGEM NÃO CONFEREM") ||
     upper.includes("CARACTERES DA IMAGEM NAO CONFEREM")
   ) {
-    return {
-      status: "CAPTCHA_INVALIDO",
-      mensagemErro: "CAPTCHA inválido",
-    };
+    return criarErro("CAPTCHA_INVALIDO", "CAPTCHA inválido");
   }
 
   if (
     upper.includes("SERVIÇO INDISPONÍVEL") ||
     upper.includes("SERVICO INDISPONIVEL")
   ) {
-    return {
-      status: "PORTAL_INDISPONIVEL",
-      mensagemErro: "Portal indisponível",
-    };
+    return criarErro("PORTAL_INDISPONIVEL", "Portal indisponível");
   }
 
   if (
@@ -142,7 +177,7 @@ function detectarErroPortal(textoOriginal) {
   ) {
     const msg = extrairMensagemErroDom();
     if (msg) {
-      return { status: "ERRO", mensagemErro: msg };
+      return criarErro("ERRO", msg);
     }
   }
 

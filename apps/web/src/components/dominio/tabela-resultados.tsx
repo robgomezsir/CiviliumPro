@@ -3,6 +3,7 @@
 import {
   consultaPodeRetentar,
   consultaTemErroDetalhe,
+  encurtarMensagemErroReceita,
   type StatusConsulta,
 } from "@civilium/shared";
 import { formatarCpf } from "@civilium/shared";
@@ -101,7 +102,9 @@ export function TabelaResultados({
                 </td>
                 <td className="max-w-md px-4 py-3 text-slate-600">
                   {consultaTemErroDetalhe(c.status) && c.erroMensagem ? (
-                    <p className="text-xs leading-relaxed">{c.erroMensagem}</p>
+                    <p className="text-xs leading-relaxed">
+                      {encurtarMensagemErroReceita(c.erroMensagem)}
+                    </p>
                   ) : (
                     "—"
                   )}
