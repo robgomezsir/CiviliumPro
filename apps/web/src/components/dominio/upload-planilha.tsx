@@ -10,6 +10,7 @@ import {
   IconDownload,
   IconPlayerPlay,
   IconPlus,
+  IconTrash,
   IconUpload,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
@@ -256,6 +257,15 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
     setLinhas((atual) => [...atual, { ...LINHA_VAZIA }]);
   };
 
+  const removerLinha = (indice: number) => {
+    setLinhas((atual) => {
+      if (atual.length <= 1) return [{ ...LINHA_VAZIA }];
+      const restante = atual.filter((_, i) => i !== indice);
+      return restante.length > 0 ? restante : [{ ...LINHA_VAZIA }];
+    });
+    setNomeArquivo(null);
+  };
+
   const iniciarVerificacao = () => {
     const preenchidas = linhas
       .map((linha, indice) => ({ linha, indice }))
@@ -323,6 +333,7 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
                 <th className="min-w-[130px] px-3 py-2 font-medium">
                   Data de nascimento
                 </th>
+                <th className="w-12 px-2 py-2 font-medium" aria-label="Ações" />
               </tr>
             </thead>
             <tbody>
@@ -355,6 +366,18 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
                       placeholder="DD/MM/AAAA"
                       className="h-9 border-slate-200"
                     />
+                  </td>
+                  <td className="px-1 py-1 text-center">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      title="Remover linha"
+                      className="h-8 w-8 p-0 text-slate-400 hover:text-red-600"
+                      onClick={() => removerLinha(indice)}
+                    >
+                      <IconTrash className="h-4 w-4" />
+                    </Button>
                   </td>
                 </tr>
               ))}
