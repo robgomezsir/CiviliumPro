@@ -11,7 +11,6 @@ import {
 } from "@tabler/icons-react";
 import { concluirLote } from "@/actions/consulta/concluir-lote.action";
 import { descartarLote } from "@/actions/consulta/descartar-lote.action";
-import { GraficoResultados } from "@/components/dominio/grafico-resultados";
 import { TabelaResultados } from "@/components/dominio/tabela-resultados";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -170,19 +169,6 @@ export function ResultadoClient({ loteId }: Props) {
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Distribuição dos resultados</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <GraficoResultados
-            confere={stats.confere}
-            naoConfere={stats.naoConfere}
-            erros={stats.erros}
-          />
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader>

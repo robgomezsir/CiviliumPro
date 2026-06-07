@@ -8,9 +8,7 @@ import {
 } from "@civilium/shared";
 import { formatarCpf } from "@civilium/shared";
 import { ResultadoBadge } from "@/components/dominio/resultado-badge";
-import { Input } from "@/components/ui/input";
-import { useDebounce } from "@/hooks/use-debounce";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 type ConsultaRow = {
   id: string;
@@ -38,9 +36,6 @@ export function TabelaResultados({
   pagina = 1,
   porPagina = 20,
 }: Props) {
-  const [busca, setBusca] = useState("");
-  const buscaDebounced = useDebounce(busca, 300);
-
   const filtradas = useMemo(() => {
     let rows = consultas;
 
@@ -52,19 +47,8 @@ export function TabelaResultados({
       rows = rows.filter((c) => filtroStatus.includes(c.status));
     }
 
-    if (buscaDebounced) {
-      const termo = buscaDebounced.toLowerCase();
-      rows = rows.filter(
-        (c) =>
-          c.nomeInformado.toLowerCase().includes(termo) ||
-          (c.nomeNaReceita?.toLowerCase().includes(termo) ?? false) ||
-          (c.situacaoCadastral?.toLowerCase().includes(termo) ?? false) ||
-          (c.erroMensagem?.toLowerCase().includes(termo) ?? false),
-      );
-    }
-
     return rows;
-  }, [consultas, filtroStatus, somentePendentes, buscaDebounced]);
+  }, [consultas, filtroStatus, somentePendentes]);
 
   const paginadas = useMemo(() => {
     const inicio = (pagina - 1) * porPagina;
@@ -73,12 +57,6 @@ export function TabelaResultados({
 
   return (
     <div className="space-y-3">
-      <Input
-        placeholder="Buscar por nome ou mensagem de erro..."
-        value={busca}
-        onChange={(e) => setBusca(e.target.value)}
-        className="max-w-sm"
-      />
       <div className="overflow-x-auto rounded-lg border border-slate-200">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-50 text-left text-slate-600">
