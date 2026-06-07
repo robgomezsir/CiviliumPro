@@ -30,7 +30,6 @@ import {
   useExcluirLote,
 } from "@/hooks/mutations/use-lote-mutations";
 import { useLotes } from "@/hooks/queries/use-lotes";
-import { useDebounce } from "@/hooks/use-debounce";
 type Lote = {
   id: string;
   nomeArquivo: string;
@@ -55,11 +54,9 @@ const FILTROS_STATUS: Array<{
 ];
 
 export function PainelLotesCrud() {
-  const [busca, setBusca] = useState("");
   const [statusFiltro, setStatusFiltro] =
     useState<(typeof STATUS_LOTE_FILTRO)[number]>("TODOS");
   const [incluirDescartados, setIncluirDescartados] = useState(false);
-  const buscaDebounced = useDebounce(busca, 300);
 
   const [loteEdicao, setLoteEdicao] = useState<Lote | null>(null);
   const [nomeEdicao, setNomeEdicao] = useState("");
@@ -68,11 +65,10 @@ export function PainelLotesCrud() {
 
   const filtros = useMemo(
     () => ({
-      busca: buscaDebounced || undefined,
       status: statusFiltro,
       incluirDescartados,
     }),
-    [buscaDebounced, statusFiltro, incluirDescartados],
+    [statusFiltro, incluirDescartados],
   );
 
   const { data: lotes, isLoading, refetch, isFetching } = useLotes(filtros);
@@ -138,28 +134,17 @@ export function PainelLotesCrud() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
-            <div className="flex-1 space-y-1.5">
-              <Label htmlFor="busca-lotes">Buscar</Label>
-              <Input
-                id="busca-lotes"
-                placeholder="Nome do arquivo..."
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {FILTROS_STATUS.map((item) => (
-                <Button
-                  key={item.value}
-                  variant={statusFiltro === item.value ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setStatusFiltro(item.value)}
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-2">
+            {FILTROS_STATUS.map((item) => (
+              <Button
+                key={item.value}
+                variant={statusFiltro === item.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => setStatusFiltro(item.value)}
+              >
+                {item.label}
+              </Button>
+            ))}
           </div>
 
           <label className="flex items-center gap-2 text-sm text-slate-600">
