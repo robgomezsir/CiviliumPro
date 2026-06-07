@@ -31,6 +31,32 @@ export const descartarLoteSchema = z.object({
   loteId: z.string().uuid(),
 });
 
+export const atualizarLoteSchema = z.object({
+  loteId: z.string().uuid(),
+  nomeArquivo: z
+    .string()
+    .min(1, "Nome é obrigatório")
+    .max(200, "Nome muito longo"),
+});
+
+export const restaurarLoteSchema = z.object({
+  loteId: z.string().uuid(),
+});
+
+export const STATUS_LOTE_FILTRO = [
+  "TODOS",
+  "AGUARDANDO",
+  "EM_CONSULTA",
+  "CONCLUIDO",
+  "DESCARTADO",
+] as const;
+
+export const listarLotesSchema = z.object({
+  busca: z.string().optional(),
+  status: z.enum(STATUS_LOTE_FILTRO).default("TODOS"),
+  incluirDescartados: z.boolean().default(false),
+});
+
 export const concluirLoteSchema = z.object({
   loteId: z.string().uuid(),
 });
