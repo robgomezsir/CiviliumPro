@@ -150,6 +150,11 @@ async function main() {
   if (fs.existsSync(guiaMd)) copiarGuia(guiaMd, guiaDistMd, versao);
   if (fs.existsSync(guiaHtml)) copiarGuia(guiaHtml, guiaDistHtml, versao);
 
+  const logo = path.join(extensionDir, "civilium-logo.png");
+  if (fs.existsSync(logo)) {
+    fs.copyFileSync(logo, path.join(distDir, "civilium-logo.png"));
+  }
+
   console.log(`✓ Pacote interno: ${zipPath} (${tamanhoKb} KB)`);
   console.log(`✓ Pasta: ${pastaPacote}`);
   console.log("\nDistribua para a equipe (segredo embutido no pacote).");

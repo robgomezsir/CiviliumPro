@@ -1,53 +1,53 @@
-# Civilium Bridge — Publicação na Chrome Web Store
+# civilium bridge — Publicação na Chrome Web Store
 
 ## Pacote para upload
 
 ```bash
-pnpm icons:extension
+pnpm brand:assets
 pnpm pack:store
 ```
 
-Arquivo gerado: `dist/civilium-bridge-store-v{versão}.zip`
+Arquivo: `dist/civilium-bridge-store-v{versão}.zip`
 
-**Não inclui segredos.** Cada usuário configura a chave em **Opções da extensão**.
+**Sem segredos.** Cada usuário configura em **Opções da extensão**.
 
 ---
 
 ## Dados do listing
 
-| Campo | Valor sugerido |
-|-------|----------------|
-| **Nome** | Civilium Bridge |
-| **Resumo** | Ponte entre o Civilium e a Receita Federal para consultas cadastrais. |
-| **Descrição** | Ver seção abaixo |
+| Campo | Valor |
+|-------|-------|
+| **Nome** | civilium bridge |
+| **Resumo** | Ponte entre o civilium e a Receita Federal para consultas cadastrais. |
 | **Categoria** | Produtividade |
 | **Idioma** | Português (Brasil) |
 | **URL do site** | https://civiliumpro.vercel.app |
-| **Política de privacidade** | https://civiliumpro.vercel.app/privacidade-extensao |
-| **Ícone da loja** | `icons/store-icon128.png` (128×128) |
+| **Privacidade** | https://civiliumpro.vercel.app/privacidade-extensao |
+| **Ícone** | `icons/store-icon128.png` |
 
-### Descrição detalhada (PT)
+### Descrição (PT)
 
 ```
-Civilium Bridge conecta o aplicativo Civilium ao portal oficial da Receita Federal do Brasil.
+civilium bridge conecta o aplicativo civilium ao portal oficial da Receita Federal do Brasil.
 
 Para quem é:
-Profissionais que validam lotes de CPF em escritórios de advocacia, RH, contabilidade e áreas correlatas usando o Civilium.
+Profissionais que validam CPFs em lote — advocacia, RH, contabilidade e áreas correlatas.
 
 O que faz:
-• Detecta quando você inicia uma consulta no Civilium
-• Abre o portal da Receita Federal na mesma aba (modo lote)
-• Aguarda você resolver o CAPTCHA manualmente
-• Envia o resultado de volta ao Civilium automaticamente
+• Detecta quando você inicia uma pesquisa no civilium
+• Abre o portal da Receita na mesma aba (modo lote)
+• Aguarda resolução manual do CAPTCHA
+• Envia o resultado de volta ao civilium automaticamente
 • Avança para a próxima pessoa da lista
 
 O que NÃO faz:
 • Não automatiza CAPTCHA
-• Não coleta dados para publicidade
-• Não acessa sites além do Civilium e da Receita Federal
+• Não exibe anúncios nem rastreia navegação
+• Não acessa sites além do civilium e da Receita Federal
 
 Configuração:
-Após instalar, abra as Opções da extensão e informe a URL do Civilium e a chave de integração fornecida pelo administrador da sua organização.
+Após instalar, abra Opções da extensão e informe a URL do civilium
+(https://civiliumpro.vercel.app) e a chave de integração do administrador.
 
 Suporte: https://civiliumpro.vercel.app
 Privacidade: https://civiliumpro.vercel.app/privacidade-extensao
@@ -55,52 +55,53 @@ Privacidade: https://civiliumpro.vercel.app/privacidade-extensao
 
 ---
 
-## Propósito único (Single purpose)
+## Propósito único
 
-> Permitir que usuários do Civilium consultem dados cadastrais no portal da Receita Federal e devolvam o resultado ao aplicativo web, com resolução manual de CAPTCHA.
+> Permitir consultas cadastrais no portal da Receita Federal a partir do civilium, com CAPTCHA manual, devolvendo o resultado ao aplicativo web.
 
 ---
 
-## Justificativa de permissões (para revisão)
+## Permissões
 
 | Permissão | Justificativa |
 |-----------|---------------|
-| `tabs` | Abrir e reutilizar a aba do portal da Receita durante consultas em lote |
-| `storage` | Salvar configuração (URL + chave) e estado temporário da consulta |
-| `civiliumpro.vercel.app` | Comunicação com o app Civilium via bridge segura |
-| `servicos.receita.fazenda.gov.br` | Leitura do resultado após CAPTCHA manual do usuário |
+| `tabs` | Abrir e reutilizar aba da Receita em consultas em lote |
+| `storage` | Salvar configuração (URL + chave) e estado da consulta |
+| `civiliumpro.vercel.app` | Bridge segura com o app civilium |
+| `servicos.receita.fazenda.gov.br` | Leitura do resultado após CAPTCHA |
 
 ---
 
-## Checklist de conformidade
+## Checklist
 
 - [x] Manifest V3
-- [x] Sem código remoto (todo JS empacotado)
-- [x] Sem segredo embutido no pacote da loja
-- [x] Página de privacidade pública
-- [x] Permissões mínimas e justificadas
-- [x] Ícones 16 / 32 / 48 / 128
-- [x] Página de opções para configuração
-- [ ] Capturas de tela 1280×800 (mín. 1) — adicionar manualmente
-- [ ] Conta de desenvolvedor Chrome ($5 USD, única vez)
-- [ ] Publicar como **Unlisted** se for uso interno da equipe
+- [x] Código empacotado (sem remoto)
+- [x] Sem segredo no pacote da loja
+- [x] Política de privacidade pública
+- [x] Permissões mínimas
+- [x] Ícones 16 / 32 / 48 / 128 + logo
+- [x] Página de opções
+- [ ] Screenshots 1280×800
+- [ ] Conta desenvolvedor Chrome ($5 USD)
+- [ ] Publicar como **Unlisted** (uso interno)
 
 ---
 
-## Capturas sugeridas
+## Screenshots sugeridas
 
-1. Civilium com badge **Bridge ativa**
-2. Página de **Opções** da extensão
-3. Portal da Receita com consulta em andamento
-4. Resultado retornando ao Civilium
+1. civilium com badge **Bridge ativa**
+2. Tela **Nova pesquisa** com tabela colável do Excel
+3. Página de **Opções** da extensão
+4. Portal da Receita com consulta em andamento
+5. Resultado no **Painel**
 
-Dimensão: **1280 × 800** ou **640 × 400** (PNG/JPEG).
+Dimensão: **1280 × 800** (PNG/JPEG).
 
 ---
 
-## Distribuição interna vs loja
+## Distribuição
 
-| Canal | Comando | Segredo |
-|-------|---------|---------|
-| Equipe (ZIP) | `pnpm pack:extension` | Embutido via `config.js` local |
-| Chrome Web Store | `pnpm pack:store` | Usuário configura em Opções |
+| Canal | Comando | Configuração |
+|-------|---------|--------------|
+| Equipe | `pnpm pack:extension` | Chave embutida |
+| Loja | `pnpm pack:store` | Opções da extensão |
