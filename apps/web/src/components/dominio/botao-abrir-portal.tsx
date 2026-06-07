@@ -16,6 +16,7 @@ type Props = {
   consultaId: string;
   disabled?: boolean;
   reabrir?: boolean;
+  modoLote?: boolean;
   onAberto?: () => void;
 };
 
@@ -24,6 +25,7 @@ export function BotaoAbrirPortal({
   consultaId,
   disabled,
   reabrir = false,
+  modoLote = true,
   onAberto,
 }: Props) {
   const [abrindo, setAbrindo] = useState(false);
@@ -51,13 +53,21 @@ export function BotaoAbrirPortal({
         throw new Error("Não foi possível preparar a consulta");
       }
 
-      const registrado = await registrarConsultaExtensao(payload);
+      const registrado = await registrarConsultaExtensao({
+        ...payload,
+        modoLote,
+      });
+
       if (!registrado) {
         toast.error("Erro ao registrar consulta na extensão.");
         return;
       }
 
-      toast.success("Portal da Receita aberto. Resolva o CAPTCHA na nova aba.");
+      toast.success(
+        modoLote
+          ? "Verificação em lote iniciada. Use a mesma aba da Receita para todas as pessoas."
+          : "Portal da Receita aberto. Resolva o CAPTCHA na nova aba.",
+      );
       onAberto?.();
     } catch (error) {
       toast.error(mensagemErroAcao(error));
@@ -66,14 +76,18 @@ export function BotaoAbrirPortal({
     }
   }
 
+  const label = abrindo
+    ? "Abrindo portal..."
+    : reabrir
+      ? "Retomar na mesma aba"
+      : modoLote
+        ? "Iniciar verificação em lote"
+        : "Abrir portal da Receita";
+
   return (
     <Button size="lg" className="w-full" onClick={abrir} disabled={disabled || abrindo}>
       <IconExternalLink className="h-5 w-5" />
-      {abrindo
-        ? "Abrindo portal..."
-        : reabrir
-          ? "Abrir portal novamente"
-          : "Abrir portal da Receita"}
+      {label}
     </Button>
   );
 }

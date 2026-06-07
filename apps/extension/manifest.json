@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Civilium Bridge",
-  "version": "2.2.3",
+  "version": "2.3.0",
   "description": "Ponte entre o Civilium e o portal da Receita Federal",
   "permissions": ["tabs", "storage"],
   "host_permissions": [

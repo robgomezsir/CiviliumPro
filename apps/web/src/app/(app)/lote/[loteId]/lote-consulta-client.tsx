@@ -1,9 +1,8 @@
 "use client";
 
-import { consultaEstaPendente, consultaPodeRetentar } from "@civilium/shared";
+import { consultaPodeRetentar } from "@civilium/shared";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
   IconPlayerPause,
@@ -26,7 +25,6 @@ type Props = {
 };
 
 export function LoteConsultaClient({ loteId }: Props) {
-  const router = useRouter();
   const { data: lote, isLoading: loadingLote } = useLote(loteId);
   const { data: consultas, isLoading: loadingConsultas } = useConsultas(loteId);
   const [pessoaIndex, setPessoaIndex] = useUrlNumberState("pessoa", 1);
@@ -35,6 +33,15 @@ export function LoteConsultaClient({ loteId }: Props) {
   useEffect(() => {
     if (lote) setPausado(Boolean(lote.pausado));
   }, [lote]);
+
+  useEffect(() => {
+    if (!consultas?.length) return;
+
+    const emAndamento = consultas.find((c) => c.status === "EM_ANDAMENTO");
+    if (emAndamento) {
+      setPessoaIndex(emAndamento.ordemNaLista);
+    }
+  }, [consultas, setPessoaIndex]);
 
   const stats = useMemo(() => {
     const rows = consultas ?? [];
@@ -58,6 +65,11 @@ export function LoteConsultaClient({ loteId }: Props) {
     }
     return consultas.find((c) => consultaPodeRetentar(c.status)) ?? null;
   }, [consultas, pessoaIndex]);
+
+  const loteEmAndamento = useMemo(
+    () => consultas?.some((c) => c.status === "EM_ANDAMENTO") ?? false,
+    [consultas],
+  );
 
   const handlePausar = async () => {
     const novoPausado = !pausado;
@@ -83,7 +95,15 @@ export function LoteConsultaClient({ loteId }: Props) {
 
   const todasVerificadas = stats.pendentes === 0;
   const aguardandoResultado = consultaAtual?.status === "EM_ANDAMENTO";
-  const podeAbrirPortal = consultaAtual && !pausado;
+  const primeiraConsulta =
+    consultaAtual?.status === "PENDENTE" && !loteEmAndamento;
+  const mostrarBotao =
+    consultaAtual &&
+    !pausado &&
+    (consultaAtual.status === "PENDENTE" ||
+      ["ABANDONADO", "EXPIRADO", "CAPTCHA_INVALIDO"].includes(
+        consultaAtual.status,
+      ));
 
   return (
     <div className="space-y-6">
@@ -149,38 +169,44 @@ export function LoteConsultaClient({ loteId }: Props) {
               </p>
             </div>
 
+            {primeiraConsulta && (
+              <p className="text-sm text-slate-600">
+                Uma única aba da Receita será usada para todo o lote. Após cada
+                resultado, o formulário da próxima pessoa abrirá automaticamente na
+                mesma aba.
+              </p>
+            )}
+
+            {loteEmAndamento && aguardandoResultado && (
+              <p className="text-sm text-blue-800">
+                Verificação em andamento na aba da Receita. Resolva o CAPTCHA e
+                aguarde — ao concluir, a próxima pessoa carregará automaticamente.
+              </p>
+            )}
+
             {consultaAtual.status === "CAPTCHA_INVALIDO" && (
               <p className="text-sm text-amber-800">
-                CAPTCHA inválido na tentativa anterior. Abra o portal novamente e
-                tente outro código.
+                CAPTCHA inválido. O formulário será recarregado automaticamente na
+                mesma aba para nova tentativa.
               </p>
             )}
 
             {["ABANDONADO", "EXPIRADO"].includes(consultaAtual.status) && (
               <p className="text-sm text-amber-800">
-                A consulta anterior não foi concluída. Você pode tentar novamente.
+                A consulta anterior não foi concluída. Clique abaixo para retomar
+                na mesma aba da Receita.
               </p>
             )}
 
-            {aguardandoResultado ? (
-              <p className="text-sm text-blue-800">
-                Aguardando resultado na aba da Receita Federal. Resolva o CAPTCHA
-                e aguarde — o resultado aparecerá automaticamente aqui.
-              </p>
-            ) : (
-              <p className="text-sm text-slate-600">
-                Clique abaixo para abrir o portal da Receita Federal em uma nova
-                aba. Resolva o CAPTCHA manualmente na página oficial.
-              </p>
+            {mostrarBotao && (
+              <BotaoAbrirPortal
+                loteId={loteId}
+                consultaId={consultaAtual.id}
+                reabrir={!primeiraConsulta}
+                modoLote
+                onAberto={() => setPessoaIndex(consultaAtual.ordemNaLista)}
+              />
             )}
-
-            <BotaoAbrirPortal
-              loteId={loteId}
-              consultaId={consultaAtual.id}
-              disabled={!podeAbrirPortal}
-              reabrir={aguardandoResultado}
-              onAberto={() => setPessoaIndex(consultaAtual.ordemNaLista)}
-            />
           </CardContent>
         </Card>
       )}

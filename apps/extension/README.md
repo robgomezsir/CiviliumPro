@@ -31,10 +31,10 @@ Em `chrome://extensions`, clique em **Recarregar** na extensão Civilium Bridge.
 - **Resultado não volta ao Civilium:** recarregue a extensão, confira se `WEBHOOK_SECRET` em `config.js` é igual ao `CIVILIUM_WEBHOOK_SECRET` na Vercel, e mantenha a aba da Receita aberta até aparecer o comprovante.
 - **Consulta travada em "Em andamento":** clique em **Abrir portal novamente** ou recarregue a página do lote (expira após 5 minutos).
 
-## Fluxo
+## Fluxo em lote (modo contínuo)
 
-1. Usuário clica **Abrir portal da Receita** no Civilium
-2. Extensão abre nova aba no portal oficial
-3. Usuário resolve o CAPTCHA manualmente
-4. Content script detecta o resultado e envia para `/api/resultado-externo`
-5. Civilium atualiza a consulta automaticamente
+1. Usuário clica **Iniciar verificação em lote** no Civilium
+2. Extensão abre **uma única aba** no portal da Receita
+3. Usuário resolve o CAPTCHA para cada pessoa
+4. Ao detectar o resultado, a extensão envia ao Civilium e **carrega automaticamente a próxima pessoa na mesma aba**
+5. O processo se repete até o fim da lista
