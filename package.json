@@ -6,9 +6,13 @@
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "db:push": "pnpm --filter @civilium/web db:push",
-    "setup:secrets": "node scripts/setup-secrets.mjs"
+    "setup:secrets": "node scripts/setup-secrets.mjs",
+    "pack:extension": "node scripts/pack-extension.mjs"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "archiver": "^7.0.1"
   }
 }

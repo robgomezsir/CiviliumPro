@@ -1,6 +1,23 @@
-# Civilium Bridge — Extensão Chrome v2.2
+# Civilium Bridge — Extensão Chrome v2.3
 
 Ponte entre o app Civilium e o portal da Receita Federal.
+
+## Distribuição para a equipe
+
+Na raiz do monorepo:
+
+```bash
+pnpm setup:secrets   # se config.js ainda não existir
+pnpm pack:extension
+```
+
+Gera em `dist/`:
+
+- `civilium-bridge-v{versão}.zip` — pacote pronto para instalar (inclui guias)
+- `GUIA-INSTALACAO.md` — instruções em Markdown
+- `GUIA-INSTALACAO.html` — guia visual; abra no Chrome → **Ctrl+P** → **Salvar como PDF**
+
+Envie o ZIP e o guia (HTML, PDF ou Markdown) por canal seguro.
 
 ## Instalação (desenvolvimento)
 

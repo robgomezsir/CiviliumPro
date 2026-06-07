@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Civilium Bridge — Guia de instalação</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #0f172a;
+      --muted: #475569;
+      --accent: #1d4ed8;
+      --border: #e2e8f0;
+      --bg: #ffffff;
+      --soft: #f8fafc;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 32px 64px;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      margin: 0 0 8px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 32px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1rem;
+      margin: 20px 0 8px;
+    }
+
+    p, li { color: var(--ink); }
+
+    .meta {
+      display: grid;
+      gap: 8px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin: 24px 0;
+      font-size: 0.95rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th { background: var(--soft); }
+
+    code, .chrome-url {
+      font-family: Consolas, "Courier New", monospace;
+      background: #eef2ff;
+      color: #312e81;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.92em;
+    }
+
+    ol, ul { padding-left: 1.25rem; }
+    li { margin: 6px 0; }
+
+    .note {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+    }
+
+    .footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media print {
+      body { background: white; }
+      main { padding: 0; max-width: none; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="no-print note">
+      Para gerar PDF: abra este arquivo no Chrome, pressione <strong>Ctrl+P</strong>
+      e escolha <strong>Salvar como PDF</strong>.
+    </p>
+
+    <h1>Civilium Bridge</h1>
+    <p class="subtitle">Guia de instalação da extensão Chrome para consultas na Receita Federal</p>
+
+    <div class="meta">
+      <div><strong>Versão:</strong> {{VERSION}}</div>
+      <div><strong>Site Civilium:</strong> https://civilium-pro-web.vercel.app</div>
+      <div><strong>Arquivo de instalação:</strong> {{ZIP_NAME}}</div>
+    </div>
+
+    <h2>Antes de começar</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Requisito</th>
+          <th>Detalhe</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Navegador</td>
+          <td>Google Chrome atualizado</td>
+        </tr>
+        <tr>
+          <td>Pacote</td>
+          <td>ZIP enviado pelo administrador do Civilium</td>
+        </tr>
+        <tr>
+          <td>Configuração</td>
+          <td>O pacote já vem pronto — não altere os arquivos</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Instalação passo a passo</h2>
+
+    <h3>1. Extrair o ZIP</h3>
+    <ol>
+      <li>Salve o arquivo em uma pasta fixa, por exemplo <code>C:\Civilium\{{FOLDER_NAME}}</code>.</li>
+      <li>Clique com o botão direito no ZIP e escolha <strong>Extrair tudo</strong>.</li>
+      <li>Confirme que a pasta contém <code>manifest.json</code> e <code>background.js</code>.</li>
+    </ol>
+
+    <h3>2. Abrir extensões do Chrome</h3>
+    <p>Na barra de endereço, digite e pressione Enter:</p>
+    <p><span class="chrome-url">chrome://extensions</span></p>
+
+    <h3>3. Ativar Modo do desenvolvedor</h3>
+    <p>No canto superior direito, ative a chave <strong>Modo do desenvolvedor</strong>.</p>
+
+    <h3>4. Carregar a extensão</h3>
+    <ol>
+      <li>Clique em <strong>Carregar sem compactação</strong>.</li>
+      <li>Selecione a pasta extraída (<code>{{FOLDER_NAME}}</code>).</li>
+      <li>Confirme que aparece <strong>Civilium Bridge</strong> versão <strong>{{VERSION}}</strong>.</li>
+    </ol>
+
+    <h3>5. Fixar a extensão (opcional)</h3>
+    <p>Clique no ícone de quebra-cabeça na barra do Chrome e fixe <strong>Civilium Bridge</strong>.</p>
+
+    <h2>Como usar</h2>
+    <ol>
+      <li>Acesse https://civilium-pro-web.vercel.app</li>
+      <li>Abra ou crie um lote de consultas</li>
+      <li>Clique em <strong>Iniciar verificação em lote</strong> ou <strong>Abrir portal</strong></li>
+      <li>Resolva o CAPTCHA no portal da Receita Federal</li>
+      <li>O resultado volta ao Civilium e a próxima pessoa é carregada na mesma aba</li>
+    </ol>
+
+    <h2>Atualizar a extensão</h2>
+    <ol>
+      <li>Extraia o novo ZIP recebido do administrador</li>
+      <li>Abra <span class="chrome-url">chrome://extensions</span></li>
+      <li>Na extensão Civilium Bridge, clique em <strong>Recarregar</strong></li>
+    </ol>
+
+    <h2>Solução de problemas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Problema</th>
+          <th>O que fazer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Extensão não conecta ao Civilium</td>
+          <td>Recarregue a extensão e reabra a aba do Civilium</td>
+        </tr>
+        <tr>
+          <td>Resultado não volta após CAPTCHA</td>
+          <td>Mantenha a aba da Receita aberta até o comprovante aparecer; recarregue a extensão</td>
+        </tr>
+        <tr>
+          <td>Consulta travada em "Em andamento"</td>
+          <td>Aguarde até 5 minutos ou use <strong>Abrir portal novamente</strong></td>
+        </tr>
+        <tr>
+          <td>Chrome pede permissões</td>
+          <td>Aceite — a extensão precisa acessar o Civilium e o portal da Receita</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Suporte</h2>
+    <p>Em caso de dúvida, envie ao administrador:</p>
+    <ul>
+      <li>Versão instalada (visível em <span class="chrome-url">chrome://extensions</span>)</li>
+      <li>Print da tela do erro</li>
+      <li>Navegador e sistema operacional</li>
+    </ul>
+
+    <p class="footer">Civilium — consulta cadastral na Receita Federal</p>
+  </main>
+</body>
+</html>
