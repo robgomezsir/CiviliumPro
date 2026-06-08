@@ -26,7 +26,7 @@ export default function LotePage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4">
+    <div className="w-full space-y-4">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Nova pesquisa</h1>
         <p className="text-slate-600">

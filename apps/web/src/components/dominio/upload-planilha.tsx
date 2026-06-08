@@ -300,7 +300,7 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
   };
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
         <div>
           <CardTitle>Lista de pessoas</CardTitle>
@@ -326,11 +326,11 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
         >
           <table className="w-full table-fixed text-sm">
             <colgroup>
-              <col className="w-10" />
-              <col className="w-[64%]" />
+              <col className="w-[3%]" />
+              <col className="w-[47%]" />
+              <col className="w-[28%]" />
               <col className="w-[19%]" />
-              <col className="w-[17%]" />
-              <col className="w-12" />
+              <col className="w-[3%]" />
             </colgroup>
             <thead className="bg-slate-50 text-left text-slate-600">
               <tr>
@@ -350,7 +350,7 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
                       value={linha.nome}
                       onChange={(e) => atualizarLinha(indice, "nome", e.target.value)}
                       placeholder="Nome completo"
-                      className="h-9 border-slate-200"
+                      className="h-9 w-full min-w-0 border-slate-200"
                     />
                   </td>
                   <td className="px-2 py-1">
@@ -358,7 +358,7 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
                       value={linha.cpf}
                       onChange={(e) => atualizarLinha(indice, "cpf", e.target.value)}
                       placeholder="00000000000"
-                      className="h-9 border-slate-200"
+                      className="h-9 w-full min-w-0 border-slate-200"
                       inputMode="numeric"
                     />
                   </td>
@@ -369,7 +369,7 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
                         atualizarLinha(indice, "dataNascimento", e.target.value)
                       }
                       placeholder="DD/MM/AAAA"
-                      className="h-9 border-slate-200"
+                      className="h-9 w-full min-w-0 border-slate-200"
                     />
                   </td>
                   <td className="px-1 py-1 text-center">
