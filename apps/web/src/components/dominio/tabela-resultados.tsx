@@ -9,6 +9,16 @@ import {
 import { formatarCpf } from "@civilium/shared";
 import { ResultadoBadge } from "@/components/dominio/resultado-badge";
 import { useMemo } from "react";
+import toast from "react-hot-toast";
+
+async function copiarNomeReceita(nome: string) {
+  try {
+    await navigator.clipboard.writeText(nome);
+    toast.success("Nome na Receita copiado");
+  } catch {
+    toast.error("Não foi possível copiar");
+  }
+}
 
 type ConsultaRow = {
   id: string;
@@ -74,7 +84,20 @@ export function TabelaResultados({
               <tr key={c.id} className="border-t border-slate-100">
                 <td className="px-4 py-3">{c.nomeInformado}</td>
                 <td className="px-4 py-3">{formatarCpf(c.cpf)}</td>
-                <td className="px-4 py-3">{c.nomeNaReceita ?? "—"}</td>
+                <td className="px-4 py-3">
+                  {c.nomeNaReceita ? (
+                    <button
+                      type="button"
+                      onClick={() => copiarNomeReceita(c.nomeNaReceita!)}
+                      className="cursor-pointer rounded text-left text-civilium-primary-dark transition-colors hover:text-civilium-primary hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-civilium-primary/40"
+                      title="Clique para copiar"
+                    >
+                      {c.nomeNaReceita}
+                    </button>
+                  ) : (
+                    "—"
+                  )}
+                </td>
                 <td className="px-4 py-3">{c.situacaoCadastral ?? "—"}</td>
                 <td className="px-4 py-3">
                   <ResultadoBadge
