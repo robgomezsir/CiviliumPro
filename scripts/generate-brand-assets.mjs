@@ -19,6 +19,8 @@ fs.copyFileSync(icoPath, path.join(publicDir, "favicon.ico"));
 const tamanhosWeb = [
   { size: 32, name: "favicon-32.png" },
   { size: 180, name: "apple-touch-icon.png" },
+  { size: 192, name: "icon-192.png" },
+  { size: 512, name: "icon-512.png" },
 ];
 
 const sourceIcon = path.join(extensionIconsDir, "source.png");

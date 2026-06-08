@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { PwaProvider } from "@/components/pwa/pwa-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import "./globals.css";
 
@@ -16,13 +17,25 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "civilium",
   description: "Verificação cadastral em lote na Receita Federal",
+  applicationName: "civilium",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "civilium",
+    statusBarStyle: "default",
+  },
   icons: {
     icon: [
-      { url: "/favicon.ico" },
+      { url: "/favicon.ico", sizes: "any" },
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
     apple: "/apple-touch-icon.png",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1a9fe8",
 };
 
 export default function RootLayout({
@@ -35,7 +48,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen text-slate-900 antialiased`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <PwaProvider>{children}</PwaProvider>
+        </QueryProvider>
       </body>
     </html>
   );
