@@ -326,11 +326,11 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
         >
           <table className="w-full table-fixed text-sm">
             <colgroup>
-              <col className="w-9" />
-              <col />
-              <col className="w-[7.25rem]" />
-              <col className="w-[8.25rem]" />
-              <col className="w-10" />
+              <col className="w-[4%]" />
+              <col className="w-[54%]" />
+              <col className="w-[18%]" />
+              <col className="w-[20%]" />
+              <col className="w-[4%]" />
             </colgroup>
             <thead className="bg-slate-50 text-left text-slate-600">
               <tr>
