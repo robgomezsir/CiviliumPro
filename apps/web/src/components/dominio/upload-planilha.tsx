@@ -322,54 +322,55 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
           ref={tabelaRef}
           tabIndex={0}
           onPasteCapture={handlePaste}
-          className="overflow-x-auto rounded-xl border border-civilium-border outline-none focus-within:ring-2 focus-within:ring-civilium-primary/30 focus:ring-2 focus:ring-civilium-primary/30"
+          className="overflow-hidden rounded-xl border border-civilium-border outline-none focus-within:ring-2 focus-within:ring-civilium-primary/30 focus:ring-2 focus:ring-civilium-primary/30"
         >
           <table className="w-full table-fixed text-sm">
             <colgroup>
-              <col className="w-[3%]" />
-              <col className="w-[47%]" />
-              <col className="w-[28%]" />
-              <col className="w-[19%]" />
-              <col className="w-[3%]" />
+              <col className="w-9" />
+              <col />
+              <col className="w-[7.25rem]" />
+              <col className="w-[8.25rem]" />
+              <col className="w-10" />
             </colgroup>
             <thead className="bg-slate-50 text-left text-slate-600">
               <tr>
-                <th className="px-3 py-2 font-medium">#</th>
-                <th className="px-3 py-2 font-medium">Nome</th>
-                <th className="px-3 py-2 font-medium">CPF</th>
-                <th className="px-3 py-2 font-medium">Data de nascimento</th>
-                <th className="px-2 py-2 font-medium" aria-label="Ações" />
+                <th className="px-2 py-2 font-medium">#</th>
+                <th className="px-2 py-2 font-medium">Nome</th>
+                <th className="px-1.5 py-2 font-medium">CPF</th>
+                <th className="px-1.5 py-2 font-medium">Data de nascimento</th>
+                <th className="px-1 py-2 font-medium" aria-label="Ações" />
               </tr>
             </thead>
             <tbody>
               {linhas.map((linha, indice) => (
                 <tr key={indice} className="border-t border-slate-100">
-                  <td className="px-3 py-1.5 text-slate-400">{indice + 1}</td>
-                  <td className="px-2 py-1">
+                  <td className="px-2 py-1.5 text-slate-400">{indice + 1}</td>
+                  <td className="px-1.5 py-1">
                     <Input
                       value={linha.nome}
                       onChange={(e) => atualizarLinha(indice, "nome", e.target.value)}
                       placeholder="Nome completo"
-                      className="h-9 w-full min-w-0 border-slate-200"
+                      className="h-9 w-full min-w-0 border-slate-200 text-sm"
                     />
                   </td>
-                  <td className="px-2 py-1">
+                  <td className="px-1 py-1">
                     <Input
                       value={linha.cpf}
                       onChange={(e) => atualizarLinha(indice, "cpf", e.target.value)}
                       placeholder="00000000000"
-                      className="h-9 w-full min-w-0 border-slate-200"
+                      className="h-9 w-full min-w-0 border-slate-200 px-2 text-sm tracking-tight"
                       inputMode="numeric"
+                      maxLength={11}
                     />
                   </td>
-                  <td className="px-2 py-1">
+                  <td className="px-1 py-1">
                     <Input
                       value={linha.dataNascimento}
                       onChange={(e) =>
                         atualizarLinha(indice, "dataNascimento", e.target.value)
                       }
                       placeholder="DD/MM/AAAA"
-                      className="h-9 w-full min-w-0 border-slate-200"
+                      className="h-9 w-full min-w-0 border-slate-200 px-2 text-sm"
                     />
                   </td>
                   <td className="px-1 py-1 text-center">
