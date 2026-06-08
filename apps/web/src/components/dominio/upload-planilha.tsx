@@ -324,16 +324,21 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
           onPasteCapture={handlePaste}
           className="overflow-x-auto rounded-xl border border-civilium-border outline-none focus-within:ring-2 focus-within:ring-civilium-primary/30 focus:ring-2 focus:ring-civilium-primary/30"
         >
-          <table className="min-w-full text-sm">
+          <table className="w-full table-fixed text-sm">
+            <colgroup>
+              <col className="w-10" />
+              <col className="w-[64%]" />
+              <col className="w-[19%]" />
+              <col className="w-[17%]" />
+              <col className="w-12" />
+            </colgroup>
             <thead className="bg-slate-50 text-left text-slate-600">
               <tr>
-                <th className="w-10 px-3 py-2 font-medium">#</th>
-                <th className="min-w-[200px] px-3 py-2 font-medium">Nome</th>
-                <th className="min-w-[140px] px-3 py-2 font-medium">CPF</th>
-                <th className="min-w-[130px] px-3 py-2 font-medium">
-                  Data de nascimento
-                </th>
-                <th className="w-12 px-2 py-2 font-medium" aria-label="Ações" />
+                <th className="px-3 py-2 font-medium">#</th>
+                <th className="px-3 py-2 font-medium">Nome</th>
+                <th className="px-3 py-2 font-medium">CPF</th>
+                <th className="px-3 py-2 font-medium">Data de nascimento</th>
+                <th className="px-2 py-2 font-medium" aria-label="Ações" />
               </tr>
             </thead>
             <tbody>
