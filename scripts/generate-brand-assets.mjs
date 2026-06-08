@@ -5,6 +5,7 @@ import sharp from "sharp";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = path.join(root, "apps", "web", "public");
+const appDir = path.join(root, "apps", "web", "src", "app");
 const extensionIconsDir = path.join(root, "apps", "extension", "icons");
 const logoPath = path.join(root, "Civilium_logo.png");
 const icoPath = path.join(root, "Civilium.ico");
@@ -15,6 +16,7 @@ fs.mkdirSync(extensionIconsDir, { recursive: true });
 fs.copyFileSync(logoPath, path.join(publicDir, "civilium-logo.png"));
 fs.copyFileSync(logoPath, path.join(root, "apps", "extension", "civilium-logo.png"));
 fs.copyFileSync(icoPath, path.join(publicDir, "favicon.ico"));
+fs.copyFileSync(icoPath, path.join(appDir, "favicon.ico"));
 
 const tamanhosWeb = [
   { size: 32, name: "favicon-32.png" },
@@ -56,3 +58,4 @@ await sharp(sourceIcon)
 
 console.log("✓ apps/web/public/civilium-logo.png");
 console.log("✓ apps/web/public/favicon.ico");
+console.log("✓ apps/web/src/app/favicon.ico");
