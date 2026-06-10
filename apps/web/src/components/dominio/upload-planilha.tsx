@@ -56,10 +56,36 @@ function normalizarData(valor: string) {
 
 function normalizarCpfColado(cpf: string) {
   const digitos = cpf.replace(/\D/g, "");
-  if (digitos.length > 0 && digitos.length < 11) {
-    return digitos.padStart(11, "0");
+  if (!digitos) return "";
+  if (digitos.length < 11) return digitos.padStart(11, "0");
+  return digitos.slice(0, 11);
+}
+
+function formatarDataColada(valor: string) {
+  const digitos = valor.replace(/\D/g, "");
+  if (digitos.length === 8) {
+    return `${digitos.slice(0, 2)}/${digitos.slice(2, 4)}/${digitos.slice(4)}`;
   }
-  return cpf.trim();
+  return normalizarData(valor);
+}
+
+function normalizarValorColado(campo: keyof LinhaBruta, valor: string) {
+  const trimmed = valor.trim();
+  switch (campo) {
+    case "cpf":
+      return normalizarCpfColado(trimmed);
+    case "dataNascimento":
+      return formatarDataColada(trimmed);
+    default:
+      return trimmed;
+  }
+}
+
+function pareceColagemEmLote(texto: string) {
+  const trimmed = texto.trim();
+  if (/[\r\n]/.test(trimmed)) return true;
+  if (trimmed.includes("\t") || trimmed.includes(";")) return true;
+  return trimmed.split(",").length >= 3;
 }
 
 function pareceCabecalho(cols: string[]) {
@@ -184,6 +210,22 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
     (event: React.ClipboardEvent) => {
       const texto = event.clipboardData.getData("text/plain");
       if (!texto.trim()) return;
+
+      const alvo = event.target as HTMLElement;
+      const input =
+        alvo instanceof HTMLInputElement ? alvo : alvo.closest("input");
+
+      if (input && !pareceColagemEmLote(texto)) {
+        const campo = input.dataset.campo as keyof LinhaBruta | undefined;
+        const linhaIdx = Number(input.dataset.linha);
+
+        if (campo && !Number.isNaN(linhaIdx)) {
+          event.preventDefault();
+          event.stopPropagation();
+          atualizarLinha(linhaIdx, campo, normalizarValorColado(campo, texto));
+        }
+        return;
+      }
 
       event.preventDefault();
       event.stopPropagation();
@@ -348,6 +390,8 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
                   <td className="px-2 py-1.5 text-slate-400">{indice + 1}</td>
                   <td className="px-1.5 py-1">
                     <Input
+                      data-linha={indice}
+                      data-campo="nome"
                       value={linha.nome}
                       onChange={(e) => atualizarLinha(indice, "nome", e.target.value)}
                       placeholder="Nome completo"
@@ -356,6 +400,8 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
                   </td>
                   <td className="px-1 py-1">
                     <Input
+                      data-linha={indice}
+                      data-campo="cpf"
                       value={linha.cpf}
                       onChange={(e) => atualizarLinha(indice, "cpf", e.target.value)}
                       placeholder="00000000000"
@@ -372,6 +418,8 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
                         atualizarLinha(indice, "dataNascimento", values.formattedValue)
                       }
                       customInput={Input}
+                      data-linha={indice}
+                      data-campo="dataNascimento"
                       placeholder="DD/MM/AAAA"
                       className="h-9 w-full min-w-0 border-slate-200 px-2 text-sm"
                       inputMode="numeric"
@@ -397,9 +445,9 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
 
         <p className="flex items-center gap-2 text-sm text-slate-600">
           <IconClipboard className="h-4 w-4 shrink-0" />
-          Cole quantas vezes quiser com <strong>Ctrl+V</strong> — cada colagem
-          adiciona linhas ao final da lista. Máximo de {MAX_PESSOAS_POR_LOTE}{" "}
-          pessoas.
+          Cole com <strong>Ctrl+V</strong> em um campo para preencher só aquela
+          coluna, ou na tabela com dados do Excel (nome, CPF e data juntos) para
+          adicionar linhas. Máximo de {MAX_PESSOAS_POR_LOTE} pessoas.
         </p>
 
         <div className="flex flex-wrap gap-2">
