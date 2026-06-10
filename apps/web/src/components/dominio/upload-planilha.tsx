@@ -6,7 +6,6 @@ import {
   type PessoaPlanilha,
 } from "@civilium/shared";
 import {
-  IconClipboard,
   IconDownload,
   IconPlayerPlay,
   IconPlus,
@@ -348,8 +347,7 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
         <div>
           <CardTitle>Lista de pessoas</CardTitle>
           <p className="mt-1 text-sm text-slate-600">
-            Cole do Excel ou preencha manualmente. Ordem: nome, CPF, data de
-            nascimento (DD/MM/AAAA).
+            Cole do Excel ou preencha manualmente. Máximo de 100 nomes por vez.
           </p>
         </div>
         <Button variant="outline" size="sm" asChild>
@@ -442,13 +440,6 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
             </tbody>
           </table>
         </div>
-
-        <p className="flex items-center gap-2 text-sm text-slate-600">
-          <IconClipboard className="h-4 w-4 shrink-0" />
-          Cole com <strong>Ctrl+V</strong> em um campo para preencher só aquela
-          coluna, ou na tabela com dados do Excel (nome, CPF e data juntos) para
-          adicionar linhas. Máximo de {MAX_PESSOAS_POR_LOTE} pessoas.
-        </p>
 
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={adicionarLinha}>
