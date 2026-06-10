@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 import Papa from "papaparse";
 import { useCallback, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { PatternFormat } from "react-number-format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -364,13 +365,16 @@ export function UploadPlanilha({ onPlanilhaValidada, isLoading }: Props) {
                     />
                   </td>
                   <td className="px-1 py-1">
-                    <Input
+                    <PatternFormat
+                      format="##/##/####"
                       value={linha.dataNascimento}
-                      onChange={(e) =>
-                        atualizarLinha(indice, "dataNascimento", e.target.value)
+                      onValueChange={(values) =>
+                        atualizarLinha(indice, "dataNascimento", values.formattedValue)
                       }
+                      customInput={Input}
                       placeholder="DD/MM/AAAA"
                       className="h-9 w-full min-w-0 border-slate-200 px-2 text-sm"
+                      inputMode="numeric"
                     />
                   </td>
                   <td className="px-1 py-1 text-center">
